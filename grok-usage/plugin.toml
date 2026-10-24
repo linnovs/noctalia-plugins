@@ -1,0 +1,37 @@
+id = "linnovs/grok-usage"
+name = "Grok Usage"
+version = "1.0.0"
+plugin_api = 24
+author = "Linnovs"
+license = "MIT"
+dependencies = []
+tags = ["bar", "panel", "ai", "utility"]
+icon = "sparkles"
+description = "Shows this week's Grok allowance on the bar, and the reset countdown in an attached panel."
+
+[[setting]]
+key = "refresh_minutes"
+type = "int"
+label_key = "settings.refresh_minutes.label"
+description_key = "settings.refresh_minutes.description"
+default = 15
+min = 1
+max = 1440
+
+[[widget]]
+id = "usage"
+entry = "widget.luau"
+
+[[panel]]
+id = "panel"
+entry = "panel.luau"
+width = 320
+height = 132
+placement = "attached"
+position = "auto"
+open_near_click = true
+dismiss_on_outside_click = true
+
+[[service]]
+id = "sync"
+entry = "service.luau"

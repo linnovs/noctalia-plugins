@@ -1,0 +1,26 @@
+{
+  "panel": {
+    "refresh": "Refresh usage",
+    "title": "Grok usage",
+    "until_cycle": "until next cycle"
+  },
+  "settings": {
+    "refresh_minutes": {
+      "description": "Minutes between usage checks. The panel refresh button checks immediately.",
+      "label": "Refresh interval (minutes)"
+    }
+  },
+  "status": {
+    "error": "Couldn't refresh usage.",
+    "expired": "Grok login expired. Run grok login again.",
+    "loading": "Checking usage…",
+    "missing_auth": "Sign in with grok login so this can read this week's usage.",
+    "unauthorized": "Grok rejected the saved login. Run grok login again."
+  },
+  "title": "Grok usage",
+  "widget": {
+    "resets": "Resets in",
+    "status": "Status",
+    "week": "This week"
+  }
+}
