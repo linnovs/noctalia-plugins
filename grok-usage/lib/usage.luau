@@ -94,6 +94,129 @@ local function expiryOf(entry)
   return Usage.parseIso8601(raw)
 end
 
+local TOKEN_URL = "https://auth.x.ai/oauth2/token"
+local REFRESH_SKEW_SECONDS = 120
+
+local function authEntry(decoded)
+  if type(decoded) ~= "table" then
+    return nil
+  end
+  if tokenFrom(decoded) ~= nil or type(decoded.refresh_token) == "string" then
+    return decoded
+  end
+  for _, entry in pairs(decoded) do
+    if type(entry) == "table" and (tokenFrom(entry) ~= nil or type(entry.refresh_token) == "string") then
+      return entry
+    end
+  end
+  return nil
+end
+
+-- Access token plus the refresh material `grok login` stores beside it.
+-- `expired` is true when the access token is missing or inside the refresh window.
+function Usage.authSession(decoded, now)
+  local entry = authEntry(decoded)
+  if entry == nil then
+    return nil, "missing"
+  end
+  local refreshToken = entry.refresh_token
+  if type(refreshToken) ~= "string" or trim(refreshToken) == "" then
+    refreshToken = nil
+  else
+    refreshToken = trim(refreshToken)
+  end
+  local clientId = entry.oidc_client_id
+  if type(clientId) ~= "string" or trim(clientId) == "" then
+    clientId = nil
+  else
+    clientId = trim(clientId)
+  end
+  local issuer = entry.oidc_issuer
+  if type(issuer) ~= "string" or trim(issuer) == "" then
+    issuer = "https://auth.x.ai"
+  else
+    issuer = trim(issuer)
+  end
+  local expiry = expiryOf(entry)
+  local token = tokenFrom(entry)
+  local expired = token == nil
+  if type(now) == "number" and expiry ~= nil and now + REFRESH_SKEW_SECONDS >= expiry then
+    expired = true
+  end
+  return {
+    token = token,
+    refreshToken = refreshToken,
+    clientId = clientId,
+    issuer = issuer,
+    expiresAt = expiry,
+    expired = expired,
+  }
+end
+
+function Usage.tokenUrl(issuer)
+  if type(issuer) ~= "string" or issuer == "" then
+    return TOKEN_URL
+  end
+  return (string.gsub(issuer, "/+$", "")) .. "/oauth2/token"
+end
+
+function Usage.refreshBody(session)
+  if type(session) ~= "table" or session.refreshToken == nil or session.clientId == nil then
+    return nil
+  end
+  local function enc(value)
+    return (string.gsub(value, "[^%w%-_%.~]", function(char)
+      return string.format("%%%02X", string.byte(char))
+    end))
+  end
+  return "grant_type=refresh_token&refresh_token="
+    .. enc(session.refreshToken)
+    .. "&client_id="
+    .. enc(session.clientId)
+end
+
+function Usage.formatIso8601(unix)
+  if type(unix) ~= "number" then
+    return nil
+  end
+  local parts = os.date("!*t", unix)
+  if type(parts) ~= "table" then
+    return nil
+  end
+  return string.format(
+    "%04d-%02d-%02dT%02d:%02d:%02dZ",
+    parts.year,
+    parts.month,
+    parts.day,
+    parts.hour,
+    parts.min,
+    parts.sec
+  )
+end
+
+-- Writes a successful token response back onto the same auth.json object.
+function Usage.applyRefresh(decoded, body, now)
+  if type(body) ~= "table" or type(body.access_token) ~= "string" or trim(body.access_token) == "" then
+    return nil
+  end
+  local entry = authEntry(decoded)
+  if entry == nil then
+    return nil
+  end
+  entry.key = trim(body.access_token)
+  if type(body.refresh_token) == "string" and trim(body.refresh_token) ~= "" then
+    entry.refresh_token = trim(body.refresh_token)
+  end
+  local lifetime = tonumber(body.expires_in)
+  if type(now) == "number" and lifetime ~= nil and lifetime > 0 then
+    local stamp = Usage.formatIso8601(now + lifetime)
+    if stamp ~= nil then
+      entry.expires_at = stamp
+    end
+  end
+  return entry.key
+end
+
 -- Picks a non-empty, unexpired token from ~/.grok/auth.json.
 -- `now` is unix seconds. Returns token, or nil plus "expired" / "missing".
 function Usage.parseAuth(decoded, now)
@@ -182,8 +305,59 @@ function Usage.parseBilling(decoded)
   return {
     percent = percent,
     resetsAt = resetsAt,
+    windowStart = windowStart,
     weekly = weekly,
   }
+end
+
+function Usage.formatResetClock(resetsAt)
+  if type(resetsAt) ~= "number" then
+    return nil
+  end
+  local clock = os.date("%a %H:%M", resetsAt)
+  if type(clock) ~= "string" or clock == "" then
+    return nil
+  end
+  return clock
+end
+
+-- Share of the allowance window that has already passed, 0–100.
+function Usage.weekElapsed(now, windowStart, resetsAt)
+  if type(now) ~= "number" or type(windowStart) ~= "number" or type(resetsAt) ~= "number" then
+    return nil
+  end
+  local span = resetsAt - windowStart
+  if span <= 0 then
+    return nil
+  end
+  local done = now - windowStart
+  if done < 0 then
+    done = 0
+  elseif done > span then
+    done = span
+  end
+  return done / span * 100
+end
+
+-- "now" under a minute, otherwise "4m" / "2h" / "3d".
+function Usage.formatAgo(now, thenAt)
+  if type(now) ~= "number" or type(thenAt) ~= "number" then
+    return nil
+  end
+  local seconds = math.floor(now - thenAt)
+  if seconds < 60 then
+    return "now"
+  end
+  local days = math.floor(seconds / 86400)
+  local hours = math.floor(seconds / 3600)
+  local minutes = math.floor(seconds / 60)
+  if days > 0 then
+    return tostring(days) .. "d"
+  end
+  if hours > 0 then
+    return tostring(hours) .. "h"
+  end
+  return tostring(minutes) .. "m"
 end
 
 function Usage.formatPercent(percent)
