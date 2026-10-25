@@ -56,14 +56,42 @@ local function render()
   end
 
   if remaining ~= nil then
-    table.insert(children, ui.row({ gap = 6, align = "center" }, {
+    local countdown = {
       ui.label({ text = remaining, fontWeight = "bold", color = "on_surface" }),
       ui.label({ text = noctalia.tr("panel.until_cycle"), color = "on_surface_variant" }),
-    }))
+    }
+    local clock = Usage.formatResetClock(usage.resetsAt)
+    if clock ~= nil then
+      table.insert(countdown, ui.label({ text = clock, color = "on_surface_variant" }))
+    end
+    table.insert(children, ui.row({ gap = 6, align = "center" }, countdown))
   elseif not hasNumber and (usage.status == "loading" or usage.fetching == true) then
     table.insert(children, ui.label({
       text = noctalia.tr("status.loading"),
       color = "on_surface_variant",
+    }))
+  end
+
+  local elapsed = Usage.weekElapsed(os.time(), usage.windowStart, usage.resetsAt)
+  if elapsed ~= nil then
+    table.insert(children, ui.label({
+      text = Usage.formatPercent(elapsed) .. " " .. noctalia.tr("panel.of_the_week"),
+      color = "on_surface_variant",
+    }))
+  end
+
+  local ago = Usage.formatAgo(os.time(), usage.fetchedAt)
+  if ago == "now" then
+    table.insert(children, ui.label({
+      text = noctalia.tr("panel.updated_now"),
+      color = "on_surface_variant",
+      fontSize = 12,
+    }))
+  elseif ago ~= nil then
+    table.insert(children, ui.label({
+      text = noctalia.tr("panel.updated") .. " " .. ago .. " " .. noctalia.tr("panel.ago"),
+      color = "on_surface_variant",
+      fontSize = 12,
     }))
   end
 
@@ -76,7 +104,12 @@ local function render()
     }))
   end
 
-  panel.render(ui.column({ flexGrow = 1, gap = 14, align = "stretch" }, children))
+  panel.render(ui.column({
+    flexGrow = 1,
+    align = "stretch",
+    gap = showStatus and 14 or 0,
+    justify = showStatus and "start" or "space_between",
+  }, children))
 end
 
 function onOpen()

@@ -1,8 +1,12 @@
 {
   "panel": {
+    "ago": "ago",
+    "of_the_week": "of the week",
     "refresh": "Refresh usage",
     "title": "Grok usage",
-    "until_cycle": "until next cycle"
+    "until_cycle": "until next cycle",
+    "updated": "Updated",
+    "updated_now": "Updated just now"
   },
   "settings": {
     "refresh_minutes": {

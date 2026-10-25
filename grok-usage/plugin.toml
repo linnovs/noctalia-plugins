@@ -1,6 +1,6 @@
 id = "linnovs/grok-usage"
 name = "Grok Usage"
-version = "1.0.0"
+version = "1.0.1"
 plugin_api = 24
 author = "Linnovs"
 license = "MIT"
@@ -26,7 +26,7 @@ entry = "widget.luau"
 id = "panel"
 entry = "panel.luau"
 width = 320
-height = 132
+height = 248
 placement = "attached"
 position = "auto"
 open_near_click = true
