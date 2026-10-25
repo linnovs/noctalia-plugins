@@ -7,7 +7,11 @@ local usage = noctalia.state.get("grok.usage")
 
 local function render()
   local percent = usage and usage.percent
-  barWidget.setGlyph("sparkles")
+  local icon = "assets/grok_light.webp"
+  if noctalia.isDarkMode() then
+    icon = "assets/grok_dark.webp"
+  end
+  barWidget.setImage(icon, false, 18)
   if type(percent) == "number" then
     barWidget.setText(Usage.formatPercent(percent))
     barWidget.setColor("primary")
