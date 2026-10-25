@@ -1,30 +1,15 @@
-# Project Template
+# Noctalia plugins
 
-This is a basic project template repository to kickstart new projects with consistent configuration.
+Plugins for the [Noctalia](https://noctalia.dev) shell. Each plugin lives in its own directory with a `plugin.toml`. `catalog.toml` is the index a host uses to list what this repository ships.
 
-## Included Configuration
+## Plugins
 
-- **.editorconfig**: Ensures consistent coding styles across different editors and IDEs
-  - UTF-8 charset
-  - Unix-style line endings (LF)
-  - Automatic final newline insertion
+| Directory | Id | What it shows |
+| --- | --- | --- |
+| [`grok-usage`](grok-usage/README.md) | `linnovs/grok-usage` | This week's Grok allowance on the bar, with the reset countdown in an attached panel |
 
-- **LICENSE**: Apache 2.0 License (Copyright 2025 Linnovs)
-
-## Getting Started
-
-1. Use this repository as a template to create a new project:
-   ```
-   git clone https://github.com/yourusername/template.git your-new-project
-   cd your-new-project
-   ```
-
-2. Remove or replace template files with your project files.
-
-3. Update the LICENSE and README as needed for your project.
-
-4. Start building your project!
+Install a plugin from this repository in Noctalia, then add its bar widget from the bar's widget picker. `grok-usage` needs a one-time `grok login` on the machine. See that plugin's README for the panel, settings, and IPC commands.
 
 ## License
 
-This template is licensed under the Apache License 2.0. See the LICENSE file for details.
+The repository itself is Apache License 2.0. See [LICENSE](LICENSE). Each plugin names its own license in `plugin.toml`.
