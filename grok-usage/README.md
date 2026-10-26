@@ -71,11 +71,11 @@ noctalia msg plugin linnovs/grok-usage:sync all refresh
   not a single product's share of the pool. `productUsage` lists those
   shares (`usagePercent` per product). A product row is that product's slice
   of the same pool.
-- Each successful check appends the weekly percent to `usage.json` (up to 24
-  points in the current allowance window). The panel shows the difference
-  as a line under "since last check". The line is scaled to the readings in
-  the current window, so a fraction of a percent still shows as a slope. A new
-  window drops the old points. A flat line means the total did not move.
+- Each successful check appends the weekly percent to `usage.json` (up to 400
+  points in the current allowance window, about 6 hours at a one-minute check). The panel shows them
+  as a line of the last 6 hours. The line is scaled to that span, so a
+  fraction of a percent still shows as a slope. A new allowance window drops
+  the old points. A flat line means the total did not move in those 6 hours.
 - The countdown uses that response's period end. Under a day it drops the day
   count; under an hour it shows minutes so it does not sit on `0h`. The clock
   beside it is that same instant in local time. "40% of the week" is how far
@@ -90,7 +90,7 @@ noctalia msg plugin linnovs/grok-usage:sync all refresh
   that file exists. When the access token is expired or near expiry, the
   plugin refreshes it with the saved refresh token and writes the new token
   back to that same file. It also writes `usage.json` in the plugin data
-  directory (the percentage, product shares, reset time, and up to 24 points
+  directory (the percentage, product shares, reset time, and up to 400 points
   of this window's weekly total, never the token). Tokens are not
   logged.
 - A failed check keeps the last percentage on the bar and says why in the

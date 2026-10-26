@@ -366,7 +366,8 @@ function Usage.parseProducts(config)
   return products
 end
 
-local MAX_HISTORY = 24
+local HISTORY_HOURS = 6
+local MAX_HISTORY = 400
 
 -- Appends one reading. A new allowance window drops the previous week's points.
 -- Identical consecutive percents still record time so the trend can say "flat".
@@ -400,17 +401,22 @@ function Usage.appendHistory(history, windowStart, fetchedAt, percent)
   return nextHistory
 end
 
--- 0–1 samples for ui.graph. Scaled to the readings' own range so a fraction
--- of a percent still draws a slope. A flat history sits on the midline.
-function Usage.graphValues(history)
+-- 0–1 samples for ui.graph, from the last 6 hours. Scaled to that span's own
+-- range so a fraction of a percent still draws a slope. A flat span sits on
+-- the midline.
+function Usage.graphValues(history, now)
   if type(history) ~= "table" then
     return nil
+  end
+  local cutoff = nil
+  if type(now) == "number" then
+    cutoff = now - HISTORY_HOURS * 3600
   end
   local percents = {}
   local lowest = nil
   local highest = nil
   for _, point in ipairs(history) do
-    if type(point) == "table" and type(point.percent) == "number" then
+    if type(point) == "table" and type(point.percent) == "number" and (cutoff == nil or (type(point.at) == "number" and point.at >= cutoff)) then
       table.insert(percents, point.percent)
       if lowest == nil or point.percent < lowest then
         lowest = point.percent

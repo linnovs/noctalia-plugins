@@ -100,7 +100,7 @@ local function render()
     end
   end
 
-  local series = Usage.graphValues(usage.history)
+  local series = Usage.graphValues(usage.history, os.time())
   if series ~= nil then
     table.insert(children, ui.label({
       text = noctalia.tr("panel.since_last"),
