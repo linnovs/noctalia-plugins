@@ -400,6 +400,44 @@ function Usage.appendHistory(history, windowStart, fetchedAt, percent)
   return nextHistory
 end
 
+-- 0–1 samples for ui.graph. Scaled to the readings' own range so a fraction
+-- of a percent still draws a slope. A flat history sits on the midline.
+function Usage.graphValues(history)
+  if type(history) ~= "table" then
+    return nil
+  end
+  local percents = {}
+  local lowest = nil
+  local highest = nil
+  for _, point in ipairs(history) do
+    if type(point) == "table" and type(point.percent) == "number" then
+      table.insert(percents, point.percent)
+      if lowest == nil or point.percent < lowest then
+        lowest = point.percent
+      end
+      if highest == nil or point.percent > highest then
+        highest = point.percent
+      end
+    end
+  end
+  if #percents == 0 then
+    return nil
+  end
+  if #percents == 1 then
+    percents[2] = percents[1]
+  end
+  local span = highest - lowest
+  local values = {}
+  for index, percent in ipairs(percents) do
+    if span <= 0 then
+      values[index] = 0.5
+    else
+      values[index] = (percent - lowest) / span
+    end
+  end
+  return values
+end
+
 -- Change in the weekly total since the previous reading in this window.
 -- Positive means more of the allowance was spent.
 function Usage.trendDelta(history)
@@ -421,15 +459,24 @@ function Usage.formatDelta(delta)
   if type(delta) ~= "number" then
     return nil
   end
-  local rounded = math.floor(math.abs(delta) + 0.5)
-  if rounded == 0 then
-    return "0%"
+  local magnitude = math.abs(delta)
+  local text
+  if magnitude == 0 then
+    text = "0%"
+  elseif magnitude < 0.1 then
+    text = string.format("%.2f%%", magnitude)
+  elseif magnitude < 10 then
+    text = string.format("%.1f%%", magnitude)
+  else
+    text = tostring(math.floor(magnitude + 0.5)) .. "%"
   end
-  local text = tostring(rounded) .. "%"
   if delta > 0 then
     return "+" .. text
   end
-  return "-" .. text
+  if delta < 0 then
+    return "-" .. text
+  end
+  return text
 end
 
 function Usage.formatResetClock(resetsAt)

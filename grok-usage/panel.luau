@@ -100,12 +100,19 @@ local function render()
     end
   end
 
-  local delta = Usage.trendDelta(usage.history)
-  local deltaText = Usage.formatDelta(delta)
-  if deltaText ~= nil then
-    table.insert(children, ui.row({ gap = 6, align = "center" }, {
-      ui.label({ text = deltaText, fontWeight = "bold", color = "on_surface" }),
-      ui.label({ text = noctalia.tr("panel.since_last"), color = "on_surface_variant" }),
+  local series = Usage.graphValues(usage.history)
+  if series ~= nil then
+    table.insert(children, ui.label({
+      text = noctalia.tr("panel.since_last"),
+      color = "on_surface_variant",
+      fontSize = 12,
+    }))
+    table.insert(children, ui.graph({
+      values = series,
+      color = "primary",
+      lineWidth = 2,
+      fillOpacity = 0.25,
+      height = 48,
     }))
   end
 

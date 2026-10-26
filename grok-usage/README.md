@@ -73,8 +73,9 @@ noctalia msg plugin linnovs/grok-usage:sync all refresh
   of the same pool.
 - Each successful check appends the weekly percent to `usage.json` (up to 24
   points in the current allowance window). The panel shows the difference
-  from the previous point as `+2% since last check`. A new window drops the
-  old points. `0%` means the total did not move.
+  as a line under "since last check". The line is scaled to the readings in
+  the current window, so a fraction of a percent still shows as a slope. A new
+  window drops the old points. A flat line means the total did not move.
 - The countdown uses that response's period end. Under a day it drops the day
   count; under an hour it shows minutes so it does not sit on `0h`. The clock
   beside it is that same instant in local time. "40% of the week" is how far
