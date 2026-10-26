@@ -24,6 +24,8 @@ local function emptyUsage()
     weekly = true,
     fetchedAt = nil,
     fetching = false,
+    products = {},
+    history = {},
   }
 end
 
@@ -49,6 +51,8 @@ local function withFetchFlag(fetching)
     weekly = previous.weekly,
     fetchedAt = previous.fetchedAt,
     fetching = fetching,
+    products = previous.products,
+    history = previous.history,
   })
 end
 
@@ -63,6 +67,8 @@ local function fail(status)
     weekly = previous.weekly,
     fetchedAt = previous.fetchedAt,
     fetching = false,
+    products = previous.products,
+    history = previous.history,
   })
   if pending then
     pending = false
@@ -91,6 +97,8 @@ local function persist(snapshot)
     windowStart = snapshot.windowStart,
     weekly = snapshot.weekly,
     fetchedAt = snapshot.fetchedAt,
+    products = snapshot.products,
+    history = snapshot.history,
   })
   if encoded == nil then
     return
@@ -120,6 +128,8 @@ local function loadCache()
     weekly = decoded.weekly ~= false,
     fetchedAt = decoded.fetchedAt,
     fetching = false,
+    products = type(decoded.products) == "table" and decoded.products or {},
+    history = type(decoded.history) == "table" and decoded.history or {},
   })
 end
 
@@ -181,14 +191,18 @@ local function requestBilling(token, allowRefresh, authFile, decoded)
       return
     end
 
+    local fetchedAt = os.time()
+    local previous = current()
     local snapshot = {
       status = "ok",
       percent = parsed.percent,
       resetsAt = parsed.resetsAt,
       windowStart = parsed.windowStart,
       weekly = parsed.weekly,
-      fetchedAt = os.time(),
+      fetchedAt = fetchedAt,
       fetching = false,
+      products = parsed.products,
+      history = Usage.appendHistory(previous.history, parsed.windowStart, fetchedAt, parsed.percent),
     }
     publish(snapshot)
     persist(snapshot)

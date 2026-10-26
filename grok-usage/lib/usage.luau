@@ -307,7 +307,129 @@ function Usage.parseBilling(decoded)
     resetsAt = resetsAt,
     windowStart = windowStart,
     weekly = weekly,
+    products = Usage.parseProducts(config),
   }
+end
+
+local PRODUCT_LABELS = {
+  GrokBuild = "Grok Build",
+  GrokChat = "Grok Chat",
+  GrokImagine = "Grok Imagine",
+  GrokTasks = "Grok Tasks",
+  Api = "xAI API",
+}
+
+function Usage.productLabel(raw)
+  if type(raw) ~= "string" then
+    return nil
+  end
+  raw = trim(raw)
+  if raw == "" or #raw > 64 then
+    return nil
+  end
+  if PRODUCT_LABELS[raw] ~= nil then
+    return PRODUCT_LABELS[raw]
+  end
+  return raw
+end
+
+-- Slices of the same weekly pool. Each percent is that product's share of the
+-- pool, not a second allowance. Unknown or empty names are skipped. At most
+-- eight rows, in the order the billing response listed them.
+function Usage.parseProducts(config)
+  local raw = field(config, "productUsage", "product_usage")
+  if type(raw) ~= "table" then
+    return {}
+  end
+  local products = {}
+  local count = 0
+  for _, item in ipairs(raw) do
+    if count >= 8 then
+      break
+    end
+    if type(item) == "table" then
+      local label = Usage.productLabel(item.product)
+      local percent = tonumber(field(item, "usagePercent", "usage_percent"))
+      if label ~= nil then
+        if percent == nil then
+          percent = 0
+        elseif percent < 0 then
+          percent = 0
+        elseif percent > 100 then
+          percent = 100
+        end
+        count = count + 1
+        products[count] = { label = label, percent = percent }
+      end
+    end
+  end
+  return products
+end
+
+local MAX_HISTORY = 24
+
+-- Appends one reading. A new allowance window drops the previous week's points.
+-- Identical consecutive percents still record time so the trend can say "flat".
+function Usage.appendHistory(history, windowStart, fetchedAt, percent)
+  local nextHistory = {}
+  if type(history) == "table" then
+    for _, point in ipairs(history) do
+      if type(point) == "table"
+        and type(point.at) == "number"
+        and type(point.percent) == "number"
+        and point.windowStart == windowStart
+      then
+        table.insert(nextHistory, {
+          at = point.at,
+          percent = point.percent,
+          windowStart = windowStart,
+        })
+      end
+    end
+  end
+  if type(fetchedAt) == "number" and type(percent) == "number" then
+    table.insert(nextHistory, {
+      at = fetchedAt,
+      percent = percent,
+      windowStart = windowStart,
+    })
+  end
+  while #nextHistory > MAX_HISTORY do
+    table.remove(nextHistory, 1)
+  end
+  return nextHistory
+end
+
+-- Change in the weekly total since the previous reading in this window.
+-- Positive means more of the allowance was spent.
+function Usage.trendDelta(history)
+  if type(history) ~= "table" or #history < 2 then
+    return nil
+  end
+  local previous = history[#history - 1]
+  local latest = history[#history]
+  if type(previous) ~= "table" or type(latest) ~= "table" then
+    return nil
+  end
+  if type(previous.percent) ~= "number" or type(latest.percent) ~= "number" then
+    return nil
+  end
+  return latest.percent - previous.percent
+end
+
+function Usage.formatDelta(delta)
+  if type(delta) ~= "number" then
+    return nil
+  end
+  local rounded = math.floor(math.abs(delta) + 0.5)
+  if rounded == 0 then
+    return "0%"
+  end
+  local text = tostring(rounded) .. "%"
+  if delta > 0 then
+    return "+" .. text
+  end
+  return "-" .. text
 end
 
 function Usage.formatResetClock(resetsAt)

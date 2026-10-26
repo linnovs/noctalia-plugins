@@ -2,8 +2,10 @@
 
 Shows how much of this week's Grok allowance is already spent. The bar is the
 percentage. The panel, attached to the bar, adds a refresh button, the same
-number as a progress bar, the reset countdown and local reset time, how much
-of the allowance window has passed, and when the reading was last updated.
+number as a progress bar, each product's share of that pool, how the weekly
+total moved since the previous check, the reset countdown and local reset
+time, how much of the allowance window has passed, and when the reading was
+last updated.
 
 ## Plugin
 
@@ -30,11 +32,13 @@ Add the **Grok Usage** widget from the bar's Add-widget picker
 `62%`.
 
 Left-click opens the panel next to the widget, attached to the bar. The panel
-is 320×248: a refresh button at the top right, the percentage spent, the
-time until the allowance resets (`3d 14h`, or `14h` / `42m` when
-less than a day remains) with the local reset time, how much of the week has
-passed, when the reading was last updated, and any status message when a
-check fails.
+is 320×320: a refresh button at the top right, the percentage spent, a row
+for each product in `productUsage` (Grok Build, Grok Chat, and whatever else
+the billing response lists), the change in the weekly total since the
+previous check, the time until the allowance resets (`3d 14h`, or `14h` /
+`42m` when less than a day remains) with the local reset time, how much of
+the week has passed, when the reading was last updated, and any status
+message when a check fails.
 
 Open the same panel with:
 
@@ -64,7 +68,13 @@ noctalia msg plugin linnovs/grok-usage:sync all refresh
 - The percentage is `creditUsagePercent` from
   `GET https://cli-chat-proxy.grok.com/v1/billing?format=credits`. That is the
   weekly pool the Grok usage page shows, not a Monday–Sunday calendar week and
-  not a single product's share of the pool.
+  not a single product's share of the pool. `productUsage` lists those
+  shares (`usagePercent` per product). A product row is that product's slice
+  of the same pool.
+- Each successful check appends the weekly percent to `usage.json` (up to 24
+  points in the current allowance window). The panel shows the difference
+  from the previous point as `+2% since last check`. A new window drops the
+  old points. `0%` means the total did not move.
 - The countdown uses that response's period end. Under a day it drops the day
   count; under an hour it shows minutes so it does not sit on `0h`. The clock
   beside it is that same instant in local time. "40% of the week" is how far
@@ -79,7 +89,8 @@ noctalia msg plugin linnovs/grok-usage:sync all refresh
   that file exists. When the access token is expired or near expiry, the
   plugin refreshes it with the saved refresh token and writes the new token
   back to that same file. It also writes `usage.json` in the plugin data
-  directory (the percentage and reset time, never the token). Tokens are not
+  directory (the percentage, product shares, reset time, and up to 24 points
+  of this window's weekly total, never the token). Tokens are not
   logged.
 - A failed check keeps the last percentage on the bar and says why in the
   panel. Run `grok login` again if the saved login is missing or the refresh

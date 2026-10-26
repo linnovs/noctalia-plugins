@@ -72,6 +72,43 @@ local function render()
     }))
   end
 
+  if type(usage.products) == "table" then
+    for _, product in ipairs(usage.products) do
+      if type(product) == "table" and type(product.label) == "string" and type(product.percent) == "number" then
+        table.insert(children, ui.row({ gap = 8, align = "center" }, {
+          ui.label({
+            text = product.label,
+            color = "on_surface",
+            flexGrow = 1,
+          }),
+          ui.box({ width = 72 }, {
+            ui.progress({
+              progress = Usage.progress(product.percent),
+              fill = "secondary",
+              track = "surface_variant",
+              radius = 3,
+              height = 4,
+              flexGrow = 1,
+            }),
+          }),
+          ui.label({
+            text = Usage.formatPercent(product.percent),
+            color = "on_surface_variant",
+          }),
+        }))
+      end
+    end
+  end
+
+  local delta = Usage.trendDelta(usage.history)
+  local deltaText = Usage.formatDelta(delta)
+  if deltaText ~= nil then
+    table.insert(children, ui.row({ gap = 6, align = "center" }, {
+      ui.label({ text = deltaText, fontWeight = "bold", color = "on_surface" }),
+      ui.label({ text = noctalia.tr("panel.since_last"), color = "on_surface_variant" }),
+    }))
+  end
+
   local elapsed = Usage.weekElapsed(os.time(), usage.windowStart, usage.resetsAt)
   if elapsed ~= nil then
     table.insert(children, ui.label({
