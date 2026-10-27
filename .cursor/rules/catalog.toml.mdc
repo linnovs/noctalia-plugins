@@ -1,0 +1,14 @@
+---
+description: Regenerate catalog.toml after every plugin version bump
+alwaysApply: true
+---
+
+# Plugin catalog
+
+Whenever a plugin's `version` (or other catalog fields such as `plugin_api`, `name`, `description`, or `tags`) changes in any `*/plugin.toml`, regenerate the root index before finishing:
+
+```sh
+python3 .github/workflows/scripts/update-catalog.py
+```
+
+Include the updated `catalog.toml` in the same commit as the version bump, or in the commit that ships that change. Do not leave `catalog.toml` stale after a plugin version update.
