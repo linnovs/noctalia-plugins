@@ -8,6 +8,73 @@ local usage = noctalia.state.get("grok.usage") or {
   fetching = false,
 }
 
+local productFills = { "tertiary", "secondary", "info", "warning", "success" }
+
+local function productSlices(products)
+  local slices = {}
+  if type(products) ~= "table" then
+    return slices
+  end
+  for _, product in ipairs(products) do
+    if type(product) == "table" and type(product.label) == "string" and type(product.percent) == "number" then
+      table.insert(slices, {
+        label = product.label,
+        percent = product.percent,
+        fill = productFills[((#slices) % #productFills) + 1],
+      })
+    end
+  end
+  return slices
+end
+
+local function stackedBar(slices)
+  local barWidth = 230
+  local used = 0
+  for _, slice in ipairs(slices) do
+    if slice.percent > 0 then
+      used = used + slice.percent
+    end
+  end
+  local scale = used > 100 and (100 / used) or 1
+  if used > 100 then
+    used = 100
+  end
+  local segments = {}
+  for _, slice in ipairs(slices) do
+    if slice.percent > 0 then
+      local width = math.max(4, math.floor(barWidth * (slice.percent * scale) / 100))
+      table.insert(segments, ui.progress({
+        progress = 1,
+        fill = slice.fill,
+        width = width,
+        height = 8,
+        radius = 4,
+      }))
+    end
+  end
+  local rest = math.floor(barWidth * (100 - used) / 100)
+  if rest >= 4 then
+    table.insert(segments, ui.progress({
+      progress = 1,
+      fill = "surface_variant",
+      width = rest,
+      height = 8,
+      radius = 4,
+    }))
+  end
+  if #segments == 0 then
+    return ui.progress({
+      progress = 0,
+      fill = "primary",
+      track = "surface_variant",
+      width = barWidth,
+      height = 8,
+      radius = 4,
+    })
+  end
+  return ui.row({ gap = 2, align = "center" }, segments)
+end
+
 local function requestRefresh()
   noctalia.state.set("grok.refresh", os.clock())
 end
@@ -37,16 +104,21 @@ local function render()
     }),
   }
 
+  local slices = productSlices(usage.products)
   if hasNumber then
+    local bar = ui.progress({
+      progress = Usage.progress(usage.percent),
+      fill = "primary",
+      track = "surface_variant",
+      radius = 4,
+      height = 8,
+      flexGrow = 1,
+    })
+    if #slices > 0 then
+      bar = stackedBar(slices)
+    end
     table.insert(children, ui.row({ gap = 10, align = "center" }, {
-      ui.progress({
-        progress = Usage.progress(usage.percent),
-        fill = "primary",
-        track = "surface_variant",
-        radius = 4,
-        height = 8,
-        flexGrow = 1,
-      }),
+      bar,
       ui.label({
         text = Usage.formatPercent(usage.percent),
         fontWeight = "bold",
@@ -72,32 +144,28 @@ local function render()
     }))
   end
 
-  if type(usage.products) == "table" then
-    for _, product in ipairs(usage.products) do
-      if type(product) == "table" and type(product.label) == "string" and type(product.percent) == "number" then
-        table.insert(children, ui.row({ gap = 8, align = "center" }, {
-          ui.label({
-            text = product.label,
-            color = "on_surface",
-            flexGrow = 1,
-          }),
-          ui.box({ width = 72 }, {
-            ui.progress({
-              progress = Usage.progress(product.percent),
-              fill = "secondary",
-              track = "surface_variant",
-              radius = 3,
-              height = 4,
-              flexGrow = 1,
-            }),
-          }),
-          ui.label({
-            text = Usage.formatPercent(product.percent),
-            color = "on_surface_variant",
-          }),
-        }))
-      end
-    end
+  for _, slice in ipairs(slices) do
+    table.insert(children, ui.row({ gap = 8, align = "center" }, {
+      ui.label({
+        text = slice.label,
+        color = slice.fill,
+        flexGrow = 1,
+      }),
+      ui.box({ width = 72 }, {
+        ui.progress({
+          progress = Usage.progress(slice.percent),
+          fill = slice.fill,
+          track = "surface_variant",
+          radius = 3,
+          height = 4,
+          flexGrow = 1,
+        }),
+      }),
+      ui.label({
+        text = Usage.formatPercent(slice.percent),
+        color = slice.fill,
+      }),
+    }))
   end
 
   local series = Usage.graphValues(usage.history, os.time())
