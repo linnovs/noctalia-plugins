@@ -11,8 +11,8 @@
 [[plugin]]
 id = "linnovs/grok-usage"
 name = "Grok Usage"
-version = "1.0.1"
-updated_at = 1792918733
+version = "1.1.0"
+updated_at = 1792987246
 added_at = 1792852364
 author = "Linnovs"
 license = "MIT"
