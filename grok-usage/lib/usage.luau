@@ -401,9 +401,11 @@ function Usage.appendHistory(history, windowStart, fetchedAt, percent)
   return nextHistory
 end
 
--- 0–1 samples for ui.graph, from the last 6 hours. Scaled to that span's own
--- range so a fraction of a percent still draws a slope. A flat span sits on
--- the midline.
+-- 0–1 samples for ui.graph: the change between consecutive readings in the
+-- last 6 hours (not the running weekly total). A reading just before the
+-- window is kept as a baseline so the first interval still has a delta.
+-- Scaled to that span's own range so a fraction of a percent still draws a
+-- slope. A flat span sits on the midline.
 function Usage.graphValues(history, now)
   if type(history) ~= "table" then
     return nil
@@ -412,33 +414,49 @@ function Usage.graphValues(history, now)
   if type(now) == "number" then
     cutoff = now - HISTORY_HOURS * 3600
   end
+  local baseline = nil
   local percents = {}
-  local lowest = nil
-  local highest = nil
   for _, point in ipairs(history) do
-    if type(point) == "table" and type(point.percent) == "number" and (cutoff == nil or (type(point.at) == "number" and point.at >= cutoff)) then
+    if type(point) == "table" and type(point.percent) == "number" and type(point.at) == "number" then
+      if cutoff ~= nil and point.at < cutoff then
+        baseline = point.percent
+      elseif cutoff == nil or point.at >= cutoff then
+        table.insert(percents, point.percent)
+      end
+    elseif type(point) == "table" and type(point.percent) == "number" and cutoff == nil then
       table.insert(percents, point.percent)
-      if lowest == nil or point.percent < lowest then
-        lowest = point.percent
-      end
-      if highest == nil or point.percent > highest then
-        highest = point.percent
-      end
     end
   end
-  if #percents == 0 then
+  if baseline ~= nil then
+    table.insert(percents, 1, baseline)
+  end
+  if #percents < 2 then
     return nil
   end
-  if #percents == 1 then
-    percents[2] = percents[1]
+
+  local deltas = {}
+  local lowest = nil
+  local highest = nil
+  for index = 2, #percents do
+    local delta = percents[index] - percents[index - 1]
+    table.insert(deltas, delta)
+    if lowest == nil or delta < lowest then
+      lowest = delta
+    end
+    if highest == nil or delta > highest then
+      highest = delta
+    end
+  end
+  if #deltas == 1 then
+    deltas[2] = deltas[1]
   end
   local span = highest - lowest
   local values = {}
-  for index, percent in ipairs(percents) do
+  for index, delta in ipairs(deltas) do
     if span <= 0 then
       values[index] = 0.5
     else
-      values[index] = (percent - lowest) / span
+      values[index] = (delta - lowest) / span
     end
   end
   return values
