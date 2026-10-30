@@ -367,6 +367,7 @@ function Usage.parseProducts(config)
 end
 
 local HISTORY_HOURS = 6
+local GRAPH_INTERVAL_SECONDS = 15 * 60
 local MAX_HISTORY = 400
 
 -- Appends one reading. A new allowance window drops the previous week's points.
@@ -401,36 +402,78 @@ function Usage.appendHistory(history, windowStart, fetchedAt, percent)
   return nextHistory
 end
 
--- 0–1 samples for ui.graph: the change between consecutive readings in the
--- last 6 hours (not the running weekly total). A reading just before the
--- window is kept as a baseline so the first interval still has a delta.
--- Scaled to that span's own range so a fraction of a percent still draws a
--- slope. A flat span sits on the midline.
+-- Readings on a fixed 15-minute grid over the last 6 hours. Each mark takes
+-- the latest check at or before that instant; a mark just before the window
+-- seeds the first delta. Intermediate checks inside a bucket are collapsed
+-- so a one-minute refresh still shows change over 15 minutes.
+local function graphPercents(history, now)
+  local points = {}
+  for _, point in ipairs(history) do
+    if type(point) == "table" and type(point.percent) == "number" and type(point.at) == "number" then
+      table.insert(points, { at = point.at, percent = point.percent })
+    end
+  end
+  if #points < 2 then
+    return nil
+  end
+  if type(now) ~= "number" then
+    local percents = {}
+    for _, point in ipairs(points) do
+      table.insert(percents, point.percent)
+    end
+    return percents
+  end
+
+  local cutoff = now - HISTORY_HOURS * 3600
+  local firstMark = math.floor(cutoff / GRAPH_INTERVAL_SECONDS) * GRAPH_INTERVAL_SECONDS
+  local index = 1
+  local lastPercent = nil
+  while index <= #points and points[index].at <= firstMark do
+    lastPercent = points[index].percent
+    index = index + 1
+  end
+
+  local percents = {}
+  if lastPercent ~= nil then
+    table.insert(percents, lastPercent)
+  end
+
+  local mark = firstMark + GRAPH_INTERVAL_SECONDS
+  while mark <= now do
+    while index <= #points and points[index].at <= mark do
+      lastPercent = points[index].percent
+      index = index + 1
+    end
+    if lastPercent ~= nil then
+      table.insert(percents, lastPercent)
+    end
+    mark = mark + GRAPH_INTERVAL_SECONDS
+  end
+
+  while index <= #points do
+    lastPercent = points[index].percent
+    index = index + 1
+  end
+  local lastMark = mark - GRAPH_INTERVAL_SECONDS
+  if lastPercent ~= nil and now > lastMark then
+    table.insert(percents, lastPercent)
+  end
+
+  if #percents < 2 then
+    return nil
+  end
+  return percents
+end
+
+-- 0–1 samples for ui.graph: the change between 15-minute samples in the last
+-- 6 hours (not the running weekly total). Scaled to that span's own range so
+-- a fraction of a percent still draws a slope. A flat span sits on the midline.
 function Usage.graphValues(history, now)
   if type(history) ~= "table" then
     return nil
   end
-  local cutoff = nil
-  if type(now) == "number" then
-    cutoff = now - HISTORY_HOURS * 3600
-  end
-  local baseline = nil
-  local percents = {}
-  for _, point in ipairs(history) do
-    if type(point) == "table" and type(point.percent) == "number" and type(point.at) == "number" then
-      if cutoff ~= nil and point.at < cutoff then
-        baseline = point.percent
-      elseif cutoff == nil or point.at >= cutoff then
-        table.insert(percents, point.percent)
-      end
-    elseif type(point) == "table" and type(point.percent) == "number" and cutoff == nil then
-      table.insert(percents, point.percent)
-    end
-  end
-  if baseline ~= nil then
-    table.insert(percents, 1, baseline)
-  end
-  if #percents < 2 then
+  local percents = graphPercents(history, now)
+  if percents == nil then
     return nil
   end
 

@@ -72,12 +72,12 @@ noctalia msg plugin linnovs/grok-usage:sync all refresh
   shares (`usagePercent` per product). A product row is that product's slice
   of the same pool.
 - Each successful check appends the weekly percent to `usage.json` (up to 400
-  points in the current allowance window, about 6 hours at a one-minute check). The panel shows them
-  as a line of the change between consecutive checks over the last 6 hours
-  (not the running weekly total). The line is scaled to that span, so a
-  fraction of a percent still shows as a slope. A new allowance window drops
-  the old points. A flat line means each check in those 6 hours saw the same
-  total.
+  points in the current allowance window). The panel charts the change between
+  15-minute samples over the last 6 hours (not the running weekly total, and
+  not every check when refresh is faster than 15 minutes). The line is scaled
+  to that span, so a fraction of a percent still shows as a slope. A new
+  allowance window drops the old points. A flat line means each 15-minute
+  sample in those 6 hours saw the same total.
 - The countdown uses that response's period end. Under a day it drops the day
   count; under an hour it shows minutes so it does not sit on `0h`. The clock
   beside it is that same instant in local time. "40% of the week" is how far
