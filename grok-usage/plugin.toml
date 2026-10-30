@@ -1,6 +1,6 @@
 id = "linnovs/grok-usage"
 name = "Grok Usage"
-version = "1.2.0"
+version = "1.2.1"
 plugin_api = 24
 author = "Linnovs"
 license = "MIT"
