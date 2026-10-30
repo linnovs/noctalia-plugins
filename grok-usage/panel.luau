@@ -105,6 +105,23 @@ local function render()
   }
 
   local slices = productSlices(usage.products)
+  local daily = Usage.dailyLeft(usage.percent, os.time(), usage.resetsAt)
+  local dailyText = Usage.formatDailyLeft(daily)
+  if dailyText ~= nil then
+    table.insert(children, ui.row({ gap = 6, align = "center" }, {
+      ui.label({
+        text = dailyText,
+        fontWeight = "bold",
+        fontSize = 16,
+        color = "primary",
+      }),
+      ui.label({
+        text = noctalia.tr("panel.left_today"),
+        color = "on_surface_variant",
+      }),
+    }))
+  end
+
   if hasNumber then
     local bar = ui.progress({
       progress = Usage.progress(usage.percent),

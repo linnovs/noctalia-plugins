@@ -1,5 +1,5 @@
 --!nonstrict
--- Bar widget: this week's Grok allowance, as a percentage.
+-- Bar widget: allowance left this cycle, as a percentage.
 
 local Usage = require("./lib/usage.luau")
 
@@ -7,13 +7,14 @@ local usage = noctalia.state.get("grok.usage")
 
 local function render()
   local percent = usage and usage.percent
+  local left = Usage.percentLeft(percent)
   local icon = "assets/grok_light.webp"
   if noctalia.isDarkMode() then
     icon = "assets/grok_dark.webp"
   end
   barWidget.setImage(icon, false, 18)
-  if type(percent) == "number" then
-    barWidget.setText(Usage.formatPercent(percent))
+  if type(left) == "number" then
+    barWidget.setText(Usage.formatPercent(left))
     barWidget.setColor("primary")
   else
     barWidget.setText("—")
@@ -25,6 +26,12 @@ local function render()
   end
 
   local rows = {}
+  if type(left) == "number" then
+    table.insert(rows, {
+      key = noctalia.tr("widget.left"),
+      value = Usage.formatPercent(left),
+    })
+  end
   if type(percent) == "number" then
     table.insert(rows, {
       key = noctalia.tr("widget.week"),
@@ -36,6 +43,14 @@ local function render()
     table.insert(rows, {
       key = noctalia.tr("widget.resets"),
       value = remaining,
+    })
+  end
+  local daily = Usage.dailyLeft(percent, os.time(), usage and usage.resetsAt)
+  local dailyText = Usage.formatDailyLeft(daily)
+  if dailyText ~= nil then
+    table.insert(rows, {
+      key = noctalia.tr("widget.today"),
+      value = dailyText,
     })
   end
   local status = usage and usage.status

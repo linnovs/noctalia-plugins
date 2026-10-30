@@ -609,6 +609,63 @@ function Usage.formatPercent(percent)
   return tostring(rounded) .. "%"
 end
 
+-- Allowance still unused this cycle, 0–100.
+function Usage.percentLeft(percent)
+  if type(percent) ~= "number" then
+    return nil
+  end
+  local left = 100 - percent
+  if left < 0 then
+    return 0
+  end
+  if left > 100 then
+    return 100
+  end
+  return left
+end
+
+-- Full 24h periods left until resetsAt (fractional), not calendar days.
+function Usage.daysRemaining(now, resetsAt)
+  if type(now) ~= "number" or type(resetsAt) ~= "number" then
+    return nil
+  end
+  local seconds = resetsAt - now
+  if seconds <= 0 then
+    return nil
+  end
+  return seconds / 86400
+end
+
+-- Remaining allowance spread evenly over the 24h periods left in the cycle.
+function Usage.dailyLeft(percent, now, resetsAt)
+  local left = Usage.percentLeft(percent)
+  local days = Usage.daysRemaining(now, resetsAt)
+  if left == nil or days == nil or days <= 0 then
+    return nil
+  end
+  return left / days
+end
+
+-- Like formatPercent, but may exceed 100 when little time remains.
+function Usage.formatDailyLeft(percent)
+  if type(percent) ~= "number" then
+    return nil
+  end
+  if percent < 0 then
+    percent = 0
+  end
+  local magnitude = percent
+  local text
+  if magnitude < 0.1 then
+    text = string.format("%.2f%%", magnitude)
+  elseif magnitude < 10 then
+    text = string.format("%.1f%%", magnitude)
+  else
+    text = tostring(math.floor(magnitude + 0.5)) .. "%"
+  end
+  return text
+end
+
 -- "3d 14h" once a day is in, otherwise hours, otherwise minutes.
 function Usage.formatRemaining(now, resetsAt)
   if type(now) ~= "number" or type(resetsAt) ~= "number" then

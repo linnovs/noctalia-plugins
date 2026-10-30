@@ -1,6 +1,7 @@
 {
   "panel": {
     "ago": "ago",
+    "left_today": "left today",
     "of_the_week": "of the week",
     "refresh": "Refresh usage",
     "since_last": "Usage per 15m (6h)",
@@ -24,8 +25,10 @@
   },
   "title": "Grok usage",
   "widget": {
+    "left": "Left this cycle",
     "resets": "Resets in",
     "status": "Status",
-    "week": "This week"
+    "today": "Left today",
+    "week": "Used this week"
   }
 }
