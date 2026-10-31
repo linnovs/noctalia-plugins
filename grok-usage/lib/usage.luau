@@ -636,10 +636,35 @@ function Usage.secondsRemaining(now, resetsAt)
   return seconds
 end
 
+-- Parse a strftime %z offset such as "+0800" or "-0430" into seconds east of UTC.
+function Usage.parseUtcOffset(value)
+  if type(value) ~= "string" then
+    return nil
+  end
+  local sign, hour, minute = string.match(value, "^([%+%-])(%d%d)(%d%d)$")
+  if sign == nil then
+    return nil
+  end
+  local seconds = tonumber(hour) * 3600 + tonumber(minute) * 60
+  if sign == "-" then
+    return -seconds
+  end
+  return seconds
+end
+
 -- Seconds until the next local midnight.
-function Usage.secondsUntilEndOfLocalDay(now)
+-- `utcOffsetSeconds` is required on hosts where os.date("*t") is UTC (Noctalia).
+function Usage.secondsUntilEndOfLocalDay(now, utcOffsetSeconds)
   if type(now) ~= "number" then
     return nil
+  end
+  if type(utcOffsetSeconds) == "number" then
+    local day = math.floor((now + utcOffsetSeconds) / 86400)
+    local midnight = (day + 1) * 86400 - utcOffsetSeconds
+    if midnight <= now then
+      return nil
+    end
+    return midnight - now
   end
   local parts = os.date("*t", now)
   if type(parts) ~= "table" then
@@ -659,12 +684,12 @@ end
 -- Window for the "left today" figure: until local midnight, or until cycle
 -- reset when that falls before midnight (last day of the cycle).
 -- Returns spanLeft, cycleLeft, lastDay — or nils when the cycle has ended.
-function Usage.dailyBudgetWindow(now, resetsAt)
+function Usage.dailyBudgetWindow(now, resetsAt, utcOffsetSeconds)
   local cycleLeft = Usage.secondsRemaining(now, resetsAt)
   if cycleLeft == nil then
     return nil, nil, nil
   end
-  local untilMidnight = Usage.secondsUntilEndOfLocalDay(now)
+  local untilMidnight = Usage.secondsUntilEndOfLocalDay(now, utcOffsetSeconds)
   if untilMidnight == nil then
     return nil, nil, nil
   end
@@ -676,9 +701,9 @@ end
 -- Share of unused allowance for the rest of today (or until reset on the
 -- cycle's last day): unused% × (span left / cycle left). Also returns
 -- lastDay so the UI can pick wording. Recalculates when usage or time changes.
-function Usage.dailyLeft(percent, now, resetsAt)
+function Usage.dailyLeft(percent, now, resetsAt, utcOffsetSeconds)
   local left = Usage.percentLeft(percent)
-  local spanLeft, cycleLeft, lastDay = Usage.dailyBudgetWindow(now, resetsAt)
+  local spanLeft, cycleLeft, lastDay = Usage.dailyBudgetWindow(now, resetsAt, utcOffsetSeconds)
   if left == nil or spanLeft == nil or cycleLeft == nil or cycleLeft <= 0 then
     return nil, nil
   end

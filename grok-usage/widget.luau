@@ -38,14 +38,16 @@ local function render()
       value = Usage.formatPercent(percent),
     })
   end
-  local remaining = usage and Usage.formatRemaining(os.time(), usage.resetsAt)
+  local now = os.time()
+  local remaining = usage and Usage.formatRemaining(now, usage.resetsAt)
   if remaining ~= nil then
     table.insert(rows, {
       key = noctalia.tr("widget.resets"),
       value = remaining,
     })
   end
-  local daily, lastDay = Usage.dailyLeft(percent, os.time(), usage and usage.resetsAt)
+  local utcOffset = Usage.parseUtcOffset(noctalia.formatTime("%z", now))
+  local daily, lastDay = Usage.dailyLeft(percent, now, usage and usage.resetsAt, utcOffset)
   local dailyText = Usage.formatDailyLeft(daily)
   if dailyText ~= nil then
     table.insert(rows, {

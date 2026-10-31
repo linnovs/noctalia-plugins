@@ -113,7 +113,9 @@ local function render()
   }
 
   local summary = {}
-  local daily, lastDay = Usage.dailyLeft(usage.percent, os.time(), usage.resetsAt)
+  local now = os.time()
+  local utcOffset = Usage.parseUtcOffset(noctalia.formatTime("%z", now))
+  local daily, lastDay = Usage.dailyLeft(usage.percent, now, usage.resetsAt, utcOffset)
   local dailyText = Usage.formatDailyLeft(daily)
   if dailyText ~= nil then
     table.insert(summary, ui.row({ gap = 6, align = "center" }, {
