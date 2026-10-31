@@ -45,11 +45,11 @@ local function render()
       value = remaining,
     })
   end
-  local daily = Usage.dailyLeft(percent, os.time(), usage and usage.resetsAt)
+  local daily, lastDay = Usage.dailyLeft(percent, os.time(), usage and usage.resetsAt)
   local dailyText = Usage.formatDailyLeft(daily)
   if dailyText ~= nil then
     table.insert(rows, {
-      key = noctalia.tr("widget.today"),
+      key = noctalia.tr(lastDay and "widget.until_reset" or "widget.today"),
       value = dailyText,
     })
   end

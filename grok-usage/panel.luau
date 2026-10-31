@@ -105,7 +105,7 @@ local function render()
   }
 
   local slices = productSlices(usage.products)
-  local daily = Usage.dailyLeft(usage.percent, os.time(), usage.resetsAt)
+  local daily, lastDay = Usage.dailyLeft(usage.percent, os.time(), usage.resetsAt)
   local dailyText = Usage.formatDailyLeft(daily)
   if dailyText ~= nil then
     table.insert(children, ui.row({ gap = 6, align = "center" }, {
@@ -116,7 +116,7 @@ local function render()
         color = "primary",
       }),
       ui.label({
-        text = noctalia.tr("panel.left_today"),
+        text = noctalia.tr(lastDay and "panel.left_until_reset" or "panel.left_today"),
         color = "on_surface_variant",
       }),
     }))

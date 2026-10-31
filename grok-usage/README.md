@@ -2,8 +2,9 @@
 
 Shows how much of this week's Grok allowance is left. The bar is the
 percentage still unused this cycle. The panel, attached to the bar, leads
-with how much is left for today (unused percent divided by 24h periods until
-reset), then the spent progress bar, each product's share of that pool, how
+with how much is left for today (unused percent times the share of cycle time
+still before local midnight, or before reset on the cycle's last day), then
+the spent progress bar, each product's share of that pool, how
 usage changed per check over the last 6 hours, the reset countdown and local
 reset time, how much of the allowance window has passed, and when the reading
 was last updated.
@@ -33,13 +34,16 @@ Add the **Grok Usage** widget from the bar's Add-widget picker
 for example `38%` when 62% has been spent.
 
 Left-click opens the panel next to the widget, attached to the bar. The panel
-is 320×320: a refresh button at the top right, how much is left today
-(unused percent ÷ 24h periods until reset), the percentage spent as a bar, a
-row for each product in `productUsage` (Grok Build, Grok Chat, and whatever
-else the billing response lists), usage per check over the last 6 hours, the
-time until the allowance resets (`3d 14h`, or `14h` / `42m` when less than a
-day remains) with the local reset time, how much of the week has passed, when
-the reading was last updated, and any status message when a check fails.
+is 320 wide and sized to its content (up to 560): a refresh button at the top
+right, how much is left today (unused percent × time until local midnight ÷
+time left in the cycle; on the last day of the cycle it uses time until reset
+and reads "left until reset"), the percentage spent as a bar, a row for each
+product in `productUsage` (Grok Build, Grok Chat, and whatever else the
+billing response lists), usage per check over the last 6 hours, the time
+until the allowance resets (`3d 14h`, or `14h` / `42m` when less than a day
+remains) with the local reset time, how much of the week has passed, when the
+reading was last updated, and any status message when a check fails. That
+figure recalculates whenever usage changes and as the clock runs.
 
 Open the same panel with:
 

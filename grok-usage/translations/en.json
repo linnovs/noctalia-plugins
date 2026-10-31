@@ -2,6 +2,7 @@
   "panel": {
     "ago": "ago",
     "left_today": "left today",
+    "left_until_reset": "left until reset",
     "of_the_week": "of the week",
     "refresh": "Refresh usage",
     "since_last": "Usage per 15m (6h)",
@@ -29,6 +30,7 @@
     "resets": "Resets in",
     "status": "Status",
     "today": "Left today",
+    "until_reset": "Left until reset",
     "week": "Used this week"
   }
 }

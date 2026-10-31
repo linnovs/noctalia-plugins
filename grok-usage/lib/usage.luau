@@ -624,8 +624,8 @@ function Usage.percentLeft(percent)
   return left
 end
 
--- Full 24h periods left until resetsAt (fractional), not calendar days.
-function Usage.daysRemaining(now, resetsAt)
+-- Seconds left until resetsAt. Nil when the cycle has already ended.
+function Usage.secondsRemaining(now, resetsAt)
   if type(now) ~= "number" or type(resetsAt) ~= "number" then
     return nil
   end
@@ -633,17 +633,56 @@ function Usage.daysRemaining(now, resetsAt)
   if seconds <= 0 then
     return nil
   end
-  return seconds / 86400
+  return seconds
 end
 
--- Remaining allowance spread evenly over the 24h periods left in the cycle.
-function Usage.dailyLeft(percent, now, resetsAt)
-  local left = Usage.percentLeft(percent)
-  local days = Usage.daysRemaining(now, resetsAt)
-  if left == nil or days == nil or days <= 0 then
+-- Seconds until the next local midnight.
+function Usage.secondsUntilEndOfLocalDay(now)
+  if type(now) ~= "number" then
     return nil
   end
-  return left / days
+  local parts = os.date("*t", now)
+  if type(parts) ~= "table" then
+    return nil
+  end
+  parts.day = parts.day + 1
+  parts.hour = 0
+  parts.min = 0
+  parts.sec = 0
+  local midnight = os.time(parts)
+  if type(midnight) ~= "number" or midnight <= now then
+    return nil
+  end
+  return midnight - now
+end
+
+-- Window for the "left today" figure: until local midnight, or until cycle
+-- reset when that falls before midnight (last day of the cycle).
+-- Returns spanLeft, cycleLeft, lastDay — or nils when the cycle has ended.
+function Usage.dailyBudgetWindow(now, resetsAt)
+  local cycleLeft = Usage.secondsRemaining(now, resetsAt)
+  if cycleLeft == nil then
+    return nil, nil, nil
+  end
+  local untilMidnight = Usage.secondsUntilEndOfLocalDay(now)
+  if untilMidnight == nil then
+    return nil, nil, nil
+  end
+  local lastDay = cycleLeft <= untilMidnight
+  local spanLeft = lastDay and cycleLeft or untilMidnight
+  return spanLeft, cycleLeft, lastDay
+end
+
+-- Share of unused allowance for the rest of today (or until reset on the
+-- cycle's last day): unused% × (span left / cycle left). Also returns
+-- lastDay so the UI can pick wording. Recalculates when usage or time changes.
+function Usage.dailyLeft(percent, now, resetsAt)
+  local left = Usage.percentLeft(percent)
+  local spanLeft, cycleLeft, lastDay = Usage.dailyBudgetWindow(now, resetsAt)
+  if left == nil or spanLeft == nil or cycleLeft == nil or cycleLeft <= 0 then
+    return nil, nil
+  end
+  return left * spanLeft / cycleLeft, lastDay
 end
 
 -- Like formatPercent, but may exceed 100 when little time remains.
