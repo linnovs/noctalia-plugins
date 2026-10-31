@@ -11,13 +11,13 @@
 [[plugin]]
 id = "linnovs/grok-usage"
 name = "Grok Usage"
-version = "1.4.3"
-updated_at = 1793458000
+version = "1.4.4"
+updated_at = 1793471453
 added_at = 1792852364
 author = "Linnovs"
 license = "MIT"
 icon = "sparkles"
-description = "Shows today's paced Grok budget on the bar, with left-today and the full cycle breakdown in an attached panel."
+description = "Shows this cycle's remaining Grok allowance on the bar, with left-today and the full breakdown in an attached panel."
 plugin_api = 42
 tags = ["bar", "panel", "ai", "utility"]
 
