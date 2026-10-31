@@ -11,12 +11,18 @@
 [[plugin]]
 id = "linnovs/grok-usage"
 name = "Grok Usage"
-version = "1.3.0"
-updated_at = 1793327257
+version = "1.4.0"
+updated_at = 1793429940
 added_at = 1792852364
 author = "Linnovs"
 license = "MIT"
 icon = "sparkles"
 description = "Shows this week's Grok allowance on the bar, and the reset countdown in an attached panel."
-plugin_api = 24
+plugin_api = 42
 tags = ["bar", "panel", "ai", "utility"]
+
+[[plugin.release]]
+plugin_api = 24
+version = "1.3.0"
+updated_at = 1793386315
+rev = "87b95000ea8ff7b59284efb52fcd9d027bffddee"
