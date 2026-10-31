@@ -1,8 +1,8 @@
 ---
-description: Do not regenerate or commit catalog.toml
+description: Do not regenerate or commit catalog.toml locally
 alwaysApply: true
 ---
 
 # Plugin catalog
 
-Do not run `update-catalog.py`, edit `catalog.toml`, or include catalog updates in commits. Leave `catalog.toml` alone unless the user explicitly asks to change it.
+Do not run `update-catalog.py`, edit `catalog.toml`, or include catalog updates in local commits. Leave `catalog.toml` alone unless the user explicitly asks to change it. CI may still rebuild it on push.
