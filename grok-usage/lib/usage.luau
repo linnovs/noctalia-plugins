@@ -681,8 +681,17 @@ function Usage.secondsUntilEndOfLocalDay(now, utcOffsetSeconds)
   return midnight - now
 end
 
--- Window for the "left today" figure: until local midnight, or until cycle
--- reset when that falls before midnight (last day of the cycle).
+-- Unix second of the local calendar day's start (00:00).
+function Usage.localDayStart(now, utcOffsetSeconds)
+  local untilMidnight = Usage.secondsUntilEndOfLocalDay(now, utcOffsetSeconds)
+  if untilMidnight == nil then
+    return nil
+  end
+  return now + untilMidnight - 86400
+end
+
+-- Window for the panel "left today" figure: until local midnight, or until
+-- cycle reset when that falls before midnight (last day of the cycle).
 -- Returns spanLeft, cycleLeft, lastDay — or nils when the cycle has ended.
 function Usage.dailyBudgetWindow(now, resetsAt, utcOffsetSeconds)
   local cycleLeft = Usage.secondsRemaining(now, resetsAt)
@@ -698,9 +707,8 @@ function Usage.dailyBudgetWindow(now, resetsAt, utcOffsetSeconds)
   return spanLeft, cycleLeft, lastDay
 end
 
--- Share of unused allowance for the rest of today (or until reset on the
--- cycle's last day): unused% × (span left / cycle left). Also returns
--- lastDay so the UI can pick wording. Recalculates when usage or time changes.
+-- Share of the weekly pool still budgeted for the rest of today (or until
+-- reset on the cycle's last day): unused% × (span left / cycle left).
 function Usage.dailyLeft(percent, now, resetsAt, utcOffsetSeconds)
   local left = Usage.percentLeft(percent)
   local spanLeft, cycleLeft, lastDay = Usage.dailyBudgetWindow(now, resetsAt, utcOffsetSeconds)
@@ -708,6 +716,79 @@ function Usage.dailyLeft(percent, now, resetsAt, utcOffsetSeconds)
     return nil, nil
   end
   return left * spanLeft / cycleLeft, lastDay
+end
+
+-- Latest weekly percent at or before `at`. If every point is after `at`,
+-- uses the earliest point. Falls back to `fallback` when history is empty.
+function Usage.percentAt(history, at, fallback)
+  if type(at) ~= "number" then
+    return fallback
+  end
+  local before = nil
+  local after = nil
+  if type(history) == "table" then
+    for _, point in ipairs(history) do
+      if type(point) == "table" and type(point.at) == "number" and type(point.percent) == "number" then
+        if point.at <= at then
+          before = point.percent
+        elseif after == nil then
+          after = point.percent
+        end
+      end
+    end
+  end
+  if before ~= nil then
+    return before
+  end
+  if after ~= nil then
+    return after
+  end
+  return fallback
+end
+
+-- How much of today's paced daily budget is still unused, 0–100 (bar only).
+-- Daily budget = leftover at local midnight × (day span / cycle left then).
+-- spentToday is the rise in weekly percent since that midnight reading.
+function Usage.dailyPaceLeft(percent, now, resetsAt, utcOffsetSeconds, history)
+  if type(percent) ~= "number" or type(resetsAt) ~= "number" then
+    return nil, nil
+  end
+  local dayStart = Usage.localDayStart(now, utcOffsetSeconds)
+  if dayStart == nil then
+    return nil, nil
+  end
+  local cycleLeftAtStart = resetsAt - dayStart
+  if cycleLeftAtStart <= 0 then
+    return nil, nil
+  end
+  local daySpan = 86400
+  if cycleLeftAtStart < daySpan then
+    daySpan = cycleLeftAtStart
+  end
+  local lastDay = cycleLeftAtStart <= 86400
+  local startPercent = Usage.percentAt(history, dayStart, percent)
+  if type(startPercent) ~= "number" then
+    return nil, nil
+  end
+  local leftAtStart = Usage.percentLeft(startPercent)
+  if leftAtStart == nil or leftAtStart <= 0 then
+    return 0, lastDay
+  end
+  local dailyBudget = leftAtStart * daySpan / cycleLeftAtStart
+  if dailyBudget <= 0 then
+    return nil, nil
+  end
+  local spentToday = percent - startPercent
+  if spentToday < 0 then
+    spentToday = 0
+  end
+  local remaining = (dailyBudget - spentToday) / dailyBudget * 100
+  if remaining < 0 then
+    remaining = 0
+  elseif remaining > 100 then
+    remaining = 100
+  end
+  return remaining, lastDay
 end
 
 -- Like formatPercent, but may exceed 100 when little time remains.

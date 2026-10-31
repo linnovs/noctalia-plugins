@@ -1,13 +1,15 @@
 # Grok Usage
 
-Shows how much of this week's Grok allowance is left. The bar is the
-percentage still unused this cycle. The panel, attached to the bar, leads
-with how much is left for today (unused percent times the share of cycle time
-still before local midnight, or before reset on the cycle's last day), then
-the spent progress bar, each product's share of that pool, how
-usage changed per check over the last 6 hours, the reset countdown and local
-reset time, how much of the allowance window has passed, and when the reading
-was last updated.
+Shows how much of today's paced Grok budget is still unused on the bar (0–100).
+At local midnight the leftover weekly allowance is split evenly across the
+days left in the cycle; the bar falls as today's spend eats that share, so you
+can stay on pace for the week. The panel, attached to the bar, leads with how
+much of the weekly pool is still budgeted for the rest of today (unused percent
+times the share of cycle time still before local midnight, or before reset on
+the cycle's last day), then the spent progress bar, each product's share of
+that pool, how usage changed per check over the last 6 hours, the reset
+countdown and local reset time, how much of the allowance window has passed,
+and when the reading was last updated.
 
 ## Plugin
 
@@ -30,14 +32,16 @@ key: an API key cannot read this weekly allowance.
 ## Usage
 
 Add the **Grok Usage** widget from the bar's Add-widget picker
-(`linnovs/grok-usage:usage`). It shows how much of the week is still unused,
-for example `38%` when 62% has been spent.
+(`linnovs/grok-usage:usage`). It shows how much of today's paced budget is
+left, for example `31%`. Hover the tooltip for cycle leftover, spent this
+cycle, and time until reset.
 
 Left-click opens the panel next to the widget, attached to the bar. The panel
 is 320 wide and sized to its content (up to 560): a refresh button at the top
-right, how much is left today (unused percent × time until local midnight ÷
-time left in the cycle; on the last day of the cycle it uses time until reset
-and reads "left until reset"), the percentage spent as a bar, a row for each
+right, how much of the week is left today (unused percent × time until local
+midnight ÷ time left in the cycle; on the last day of the cycle it uses time
+until reset and reads "of week until reset"), the percentage spent as a bar, a
+row for each
 product in `productUsage` (Grok Build, Grok Chat, and whatever else the
 billing response lists), usage per check over the last 6 hours, the time
 until the allowance resets (`3d 14h`, or `14h` / `42m` when less than a day
@@ -70,6 +74,11 @@ noctalia msg plugin linnovs/grok-usage:sync all refresh
 
 ## Notes
 
+- The bar is today's paced budget remaining (leftover at midnight ÷ days left,
+  minus spend since midnight, as a percent of that daily share). The tooltip
+  still lists cycle leftover and spent this cycle. The panel "of week left
+  today" figure stays the weekly-pool slice for the rest of the local day (or
+  until reset).
 - The percentage is `creditUsagePercent` from
   `GET https://cli-chat-proxy.grok.com/v1/billing?format=credits`. That is the
   weekly pool the Grok usage page shows, not a Monday–Sunday calendar week and
