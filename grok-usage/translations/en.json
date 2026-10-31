@@ -27,10 +27,12 @@
   "title": "Grok usage",
   "widget": {
     "left": "Left this cycle",
+    "pace": "Daily pace left",
+    "pace_until_reset": "Pace until reset",
     "resets": "Resets in",
     "status": "Status",
-    "today": "Daily pace left",
-    "until_reset": "Pace until reset",
+    "today": "Of week left today",
+    "until_reset": "Of week until reset",
     "week": "Used this cycle"
   }
 }

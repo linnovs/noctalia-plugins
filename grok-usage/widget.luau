@@ -10,14 +10,16 @@ local function render()
   local left = Usage.percentLeft(percent)
   local now = os.time()
   local utcOffset = Usage.parseUtcOffset(noctalia.formatTime("%z", now))
-  local pace, lastDay = Usage.dailyPaceLeft(
+  local pace, paceLastDay = Usage.dailyPaceLeft(
     percent,
     now,
     usage and usage.resetsAt,
     utcOffset,
     usage and usage.history
   )
-  local dailyText = Usage.formatDailyLeft(pace)
+  local paceText = Usage.formatDailyLeft(pace)
+  local daily, dailyLastDay = Usage.dailyLeft(percent, now, usage and usage.resetsAt, utcOffset)
+  local dailyText = Usage.formatDailyLeft(daily)
 
   local icon = "assets/grok_light.webp"
   if noctalia.isDarkMode() then
@@ -25,8 +27,8 @@ local function render()
   end
   barWidget.setImage(icon, false, 18)
 
-  if dailyText ~= nil then
-    barWidget.setText(dailyText)
+  if paceText ~= nil then
+    barWidget.setText(paceText)
     barWidget.setColor("primary")
   elseif type(left) == "number" then
     barWidget.setText(Usage.formatPercent(left))
@@ -41,9 +43,15 @@ local function render()
   end
 
   local rows = {}
+  if paceText ~= nil then
+    table.insert(rows, {
+      key = noctalia.tr(paceLastDay and "widget.pace_until_reset" or "widget.pace"),
+      value = paceText,
+    })
+  end
   if dailyText ~= nil then
     table.insert(rows, {
-      key = noctalia.tr(lastDay and "widget.until_reset" or "widget.today"),
+      key = noctalia.tr(dailyLastDay and "widget.until_reset" or "widget.today"),
       value = dailyText,
     })
   end

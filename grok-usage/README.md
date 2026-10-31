@@ -33,8 +33,8 @@ key: an API key cannot read this weekly allowance.
 
 Add the **Grok Usage** widget from the bar's Add-widget picker
 (`linnovs/grok-usage:usage`). It shows how much of today's paced budget is
-left, for example `31%`. Hover the tooltip for cycle leftover, spent this
-cycle, and time until reset.
+left, for example `31%`. Hover the tooltip for daily pace, of-week left today,
+cycle leftover, spent this cycle, and time until reset.
 
 Left-click opens the panel next to the widget, attached to the bar. The panel
 is 320 wide and sized to its content (up to 560): a refresh button at the top
@@ -76,9 +76,9 @@ noctalia msg plugin linnovs/grok-usage:sync all refresh
 
 - The bar is today's paced budget remaining (leftover at midnight ÷ days left,
   minus spend since midnight, as a percent of that daily share). The tooltip
-  still lists cycle leftover and spent this cycle. The panel "of week left
-  today" figure stays the weekly-pool slice for the rest of the local day (or
-  until reset).
+  lists that pace and of-week left today (weekly-pool slice for the rest of
+  the local day, or until reset), plus cycle leftover and spent this cycle.
+  The panel leads with of-week left today.
 - The percentage is `creditUsagePercent` from
   `GET https://cli-chat-proxy.grok.com/v1/billing?format=credits`. That is the
   weekly pool the Grok usage page shows, not a Monday–Sunday calendar week and
