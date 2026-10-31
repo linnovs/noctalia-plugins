@@ -1,0 +1,8 @@
+---
+description: One purpose per commit
+alwaysApply: true
+---
+
+# Commits
+
+Every commit covers exactly one change: one task or purpose. Do not mix unrelated edits (for example layout and a version bump, or a feature and a workflow tweak) in the same commit. If work spans multiple purposes, split into separate commits before finishing.
