@@ -3,7 +3,7 @@
     "ago": "ago",
     "left_today": "left today",
     "left_until_reset": "left until reset",
-    "of_the_week": "of the week",
+    "of_the_week": "of the current cycle",
     "refresh": "Refresh usage",
     "since_last": "Usage per 15m (6h)",
     "title": "Grok usage",

@@ -41,9 +41,9 @@ and reads "left until reset"), the percentage spent as a bar, a row for each
 product in `productUsage` (Grok Build, Grok Chat, and whatever else the
 billing response lists), usage per check over the last 6 hours, the time
 until the allowance resets (`3d 14h`, or `14h` / `42m` when less than a day
-remains) with the local reset time, how much of the week has passed, when the
-reading was last updated, and any status message when a check fails. That
-figure recalculates whenever usage changes and as the clock runs.
+remains) with the local reset time, how much of the current cycle has passed,
+when the reading was last updated, and any status message when a check fails.
+That figure recalculates whenever usage changes and as the clock runs.
 
 Open the same panel with:
 
@@ -85,9 +85,9 @@ noctalia msg plugin linnovs/grok-usage:sync all refresh
   sample in those 6 hours saw the same total.
 - The countdown uses that response's period end. Under a day it drops the day
   count; under an hour it shows minutes so it does not sit on `0h`. The clock
-  beside it is that same instant in local time. "40% of the week" is how far
-  the current period has run, not a second allowance. "Updated 4m ago" is when
-  the last successful check finished.
+  beside it is that same instant in local time. "40% of the current cycle" is
+  how far the current period has run, not a second allowance. "Updated 4m ago"
+  is when the last successful check finished.
 - Network: one HTTPS GET to `cli-chat-proxy.grok.com` per check, with the saved
   login as a bearer token. When that access token is expired, within two
   minutes of expiry, or rejected, the plugin POSTs the saved refresh token to
