@@ -1,5 +1,5 @@
 --!nonstrict
--- Bar widget: paced daily budget remaining (0–100).
+-- Bar widget: allowance left this cycle, as a percentage.
 
 local Usage = require("./lib/usage.luau")
 
@@ -10,14 +10,6 @@ local function render()
   local left = Usage.percentLeft(percent)
   local now = os.time()
   local utcOffset = Usage.parseUtcOffset(noctalia.formatTime("%z", now))
-  local pace, paceLastDay = Usage.dailyPaceLeft(
-    percent,
-    now,
-    usage and usage.resetsAt,
-    utcOffset,
-    usage and usage.history
-  )
-  local paceText = Usage.formatDailyLeft(pace)
   local daily, dailyLastDay = Usage.dailyLeft(percent, now, usage and usage.resetsAt, utcOffset)
   local dailyText = Usage.formatDailyLeft(daily)
 
@@ -27,10 +19,7 @@ local function render()
   end
   barWidget.setImage(icon, false, 18)
 
-  if paceText ~= nil then
-    barWidget.setText(paceText)
-    barWidget.setColor("primary")
-  elseif type(left) == "number" then
+  if type(left) == "number" then
     barWidget.setText(Usage.formatPercent(left))
     barWidget.setColor("primary")
   else
@@ -43,22 +32,16 @@ local function render()
   end
 
   local rows = {}
-  if paceText ~= nil then
+  if type(left) == "number" then
     table.insert(rows, {
-      key = noctalia.tr(paceLastDay and "widget.pace_until_reset" or "widget.pace"),
-      value = paceText,
+      key = noctalia.tr("widget.left"),
+      value = Usage.formatPercent(left),
     })
   end
   if dailyText ~= nil then
     table.insert(rows, {
       key = noctalia.tr(dailyLastDay and "widget.until_reset" or "widget.today"),
       value = dailyText,
-    })
-  end
-  if type(left) == "number" then
-    table.insert(rows, {
-      key = noctalia.tr("widget.left"),
-      value = Usage.formatPercent(left),
     })
   end
   if type(percent) == "number" then
