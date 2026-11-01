@@ -1,5 +1,5 @@
 --!nonstrict
--- Bar widget: allowance left this cycle, as a percentage.
+-- Bar widget: allowance used this cycle, as a percentage.
 
 local Usage = require("./lib/usage.luau")
 
@@ -19,8 +19,8 @@ local function render()
   end
   barWidget.setImage(icon, false, 18)
 
-  if type(left) == "number" then
-    barWidget.setText(Usage.formatPercent(left))
+  if type(percent) == "number" then
+    barWidget.setText(Usage.formatPercent(percent))
     barWidget.setColor("primary")
   else
     barWidget.setText("—")
@@ -32,6 +32,12 @@ local function render()
   end
 
   local rows = {}
+  if type(percent) == "number" then
+    table.insert(rows, {
+      key = noctalia.tr("widget.week"),
+      value = Usage.formatPercent(percent),
+    })
+  end
   if type(left) == "number" then
     table.insert(rows, {
       key = noctalia.tr("widget.left"),
@@ -42,12 +48,6 @@ local function render()
     table.insert(rows, {
       key = noctalia.tr(dailyLastDay and "widget.until_reset" or "widget.today"),
       value = dailyText,
-    })
-  end
-  if type(percent) == "number" then
-    table.insert(rows, {
-      key = noctalia.tr("widget.week"),
-      value = Usage.formatPercent(percent),
     })
   end
   local remaining = usage and Usage.formatRemaining(now, usage.resetsAt)

@@ -1,13 +1,13 @@
 id = "linnovs/grok-usage"
 name = "Grok Usage"
-version = "1.4.4"
+version = "1.4.5"
 plugin_api = 42
 author = "Linnovs"
 license = "MIT"
 dependencies = []
 tags = ["bar", "panel", "ai", "utility"]
 icon = "sparkles"
-description = "Shows this cycle's remaining Grok allowance on the bar, with left-today and the full breakdown in an attached panel."
+description = "Shows this cycle's used Grok allowance on the bar, with left-today and the full breakdown in an attached panel."
 
 [[setting]]
 key = "refresh_minutes"

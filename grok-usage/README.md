@@ -1,13 +1,13 @@
 # Grok Usage
 
-Shows how much of this cycle's Grok allowance is left. The bar is the
-percentage still unused this cycle. The panel, attached to the bar, leads
-with how much of the weekly pool is still budgeted for the rest of today
-(unused percent times the share of cycle time still before local midnight, or
-before reset on the cycle's last day), then the spent progress bar, each
-product's share of that pool, how usage changed per check over the last 6
-hours, the reset countdown and local reset time, how much of the allowance
-window has passed, and when the reading was last updated.
+Shows how much of this cycle's Grok allowance has been used. The bar is the
+percentage spent this cycle. The panel, attached to the bar, leads with how
+much of the weekly pool is still budgeted for the rest of today (unused percent
+times the share of cycle time still before local midnight, or before reset on
+the cycle's last day), then the spent progress bar, each product's share of
+that pool, how usage changed per check over the last 6 hours, the reset
+countdown and local reset time, how much of the allowance window has passed,
+and when the reading was last updated.
 
 ## Plugin
 
@@ -30,8 +30,8 @@ key: an API key cannot read this weekly allowance.
 ## Usage
 
 Add the **Grok Usage** widget from the bar's Add-widget picker
-(`linnovs/grok-usage:usage`). It shows how much of the cycle is still unused,
-for example `89%`. Hover the tooltip for of-week left today, spent this cycle,
+(`linnovs/grok-usage:usage`). It shows how much of the cycle has been used,
+for example `11%`. Hover the tooltip for cycle leftover, of-week left today,
 and time until reset.
 
 Left-click opens the panel next to the widget, attached to the bar. The panel
@@ -72,9 +72,9 @@ noctalia msg plugin linnovs/grok-usage:sync all refresh
 
 ## Notes
 
-- The bar is unused percent for the whole cycle. The tooltip and panel also
-  show of-week left today (weekly-pool slice for the rest of the local day, or
-  until reset).
+- The bar is used percent for the whole cycle. The tooltip also lists cycle
+  leftover and of-week left today (weekly-pool slice for the rest of the local
+  day, or until reset). The panel leads with of-week left today.
 - The percentage is `creditUsagePercent` from
   `GET https://cli-chat-proxy.grok.com/v1/billing?format=credits`. That is the
   weekly pool the Grok usage page shows, not a Monday–Sunday calendar week and
