@@ -467,7 +467,8 @@ end
 
 -- 0–1 samples for ui.graph: the change between 15-minute samples in the last
 -- 6 hours (not the running weekly total). Scaled to that span's own range so
--- a fraction of a percent still draws a slope. A flat span sits on the midline.
+-- a fraction of a percent still draws a slope. A flat span (no change) sits
+-- on the bottom — zero usage in those intervals.
 function Usage.graphValues(history, now)
   if type(history) ~= "table" then
     return nil
@@ -497,7 +498,7 @@ function Usage.graphValues(history, now)
   local values = {}
   for index, delta in ipairs(deltas) do
     if span <= 0 then
-      values[index] = 0.5
+      values[index] = 0
     else
       values[index] = (delta - lowest) / span
     end
