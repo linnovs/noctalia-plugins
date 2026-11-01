@@ -194,15 +194,15 @@ local function render()
   end
   table.insert(sections, section(products))
 
-  local chart = {}
+  local footer = {}
   local series = Usage.graphValues(usage.history, os.time())
   if series ~= nil then
-    table.insert(chart, ui.label({
+    table.insert(footer, ui.label({
       text = noctalia.tr("panel.since_last"),
       color = "on_surface_variant",
       fontSize = 12,
     }))
-    table.insert(chart, ui.graph({
+    table.insert(footer, ui.graph({
       values = series,
       color = "primary",
       lineWidth = 2,
@@ -210,39 +210,36 @@ local function render()
       height = 48,
     }))
   end
-  table.insert(sections, section(chart))
-
-  local meta = {}
   local elapsed = Usage.weekElapsed(os.time(), usage.windowStart, usage.resetsAt)
   if elapsed ~= nil then
-    table.insert(meta, ui.label({
+    table.insert(footer, ui.label({
       text = Usage.formatPercent(elapsed) .. " " .. noctalia.tr("panel.of_the_week"),
       color = "on_surface_variant",
     }))
   end
   local ago = Usage.formatAgo(os.time(), usage.fetchedAt)
   if ago == "now" then
-    table.insert(meta, ui.label({
+    table.insert(footer, ui.label({
       text = noctalia.tr("panel.updated_now"),
       color = "on_surface_variant",
       fontSize = 12,
     }))
   elseif ago ~= nil then
-    table.insert(meta, ui.label({
+    table.insert(footer, ui.label({
       text = noctalia.tr("panel.updated") .. " " .. ago .. " " .. noctalia.tr("panel.ago"),
       color = "on_surface_variant",
       fontSize = 12,
     }))
   end
   if showStatus then
-    table.insert(meta, ui.label({
+    table.insert(footer, ui.label({
       text = noctalia.tr(statusKey),
       color = "error",
       fontSize = 12,
       maxLines = 3,
     }))
   end
-  table.insert(sections, section(meta))
+  table.insert(sections, section(footer))
 
   local children = {}
   for _, block in ipairs(sections) do
