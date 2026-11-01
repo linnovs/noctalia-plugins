@@ -115,16 +115,17 @@ local function render()
   local summary = {}
   local left = Usage.percentLeft(usage.percent)
   if type(left) == "number" then
-    table.insert(summary, ui.row({ gap = 6, align = "center" }, {
+    table.insert(summary, ui.row({ gap = 8, align = "center" }, {
       ui.label({
         text = Usage.formatPercent(left),
-        fontWeight = "bold",
-        fontSize = 16,
-        color = "primary",
+        fontWeight = "heavy",
+        fontSize = 32,
+        color = "on_surface",
       }),
       ui.label({
         text = noctalia.tr("panel.left_cycle"),
-        color = "on_surface_variant",
+        fontSize = 16,
+        color = "on_surface",
       }),
     }))
   end
