@@ -9,9 +9,6 @@ local function render()
   local percent = usage and usage.percent
   local left = Usage.percentLeft(percent)
   local now = os.time()
-  local utcOffset = Usage.parseUtcOffset(noctalia.formatTime("%z", now))
-  local daily, dailyLastDay = Usage.dailyLeft(percent, now, usage and usage.resetsAt, utcOffset)
-  local dailyText = Usage.formatDailyLeft(daily)
 
   local icon = "assets/grok_light.webp"
   if noctalia.isDarkMode() then
@@ -42,12 +39,6 @@ local function render()
     table.insert(rows, {
       key = noctalia.tr("widget.left"),
       value = Usage.formatPercent(left),
-    })
-  end
-  if dailyText ~= nil then
-    table.insert(rows, {
-      key = noctalia.tr(dailyLastDay and "widget.until_reset" or "widget.today"),
-      value = dailyText,
     })
   end
   local remaining = usage and Usage.formatRemaining(now, usage.resetsAt)

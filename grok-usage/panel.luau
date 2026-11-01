@@ -113,20 +113,17 @@ local function render()
   }
 
   local summary = {}
-  local now = os.time()
-  local utcOffset = Usage.parseUtcOffset(noctalia.formatTime("%z", now))
-  local daily, lastDay = Usage.dailyLeft(usage.percent, now, usage.resetsAt, utcOffset)
-  local dailyText = Usage.formatDailyLeft(daily)
-  if dailyText ~= nil then
+  local left = Usage.percentLeft(usage.percent)
+  if type(left) == "number" then
     table.insert(summary, ui.row({ gap = 6, align = "center" }, {
       ui.label({
-        text = dailyText,
+        text = Usage.formatPercent(left),
         fontWeight = "bold",
         fontSize = 16,
         color = "primary",
       }),
       ui.label({
-        text = noctalia.tr(lastDay and "panel.left_until_reset" or "panel.left_today"),
+        text = noctalia.tr("panel.left_cycle"),
         color = "on_surface_variant",
       }),
     }))
