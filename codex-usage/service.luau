@@ -1,0 +1,4 @@
+--!nonstrict
+
+function update()
+end

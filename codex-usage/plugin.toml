@@ -1,0 +1,78 @@
+id = "linnovs/codex-usage"
+name = "Codex Usage"
+version = "1.0.0"
+plugin_api = 42
+author = "Linnovs"
+license = "MIT"
+dependencies = []
+tags = ["bar", "panel", "ai", "utility"]
+icon = "terminal"
+description = "Shows Codex ChatGPT allowance left on the bar, with windows, today pace, and calendar tokens in an attached panel."
+
+[[setting]]
+key = "bar_window"
+type = "select"
+label_key = "settings.bar_window.label"
+description_key = "settings.bar_window.description"
+default = "auto"
+options = [
+  { value = "auto", label_key = "settings.bar_window.auto" },
+  { value = "5h", label_key = "settings.bar_window.five_h" },
+  { value = "weekly", label_key = "settings.bar_window.weekly" },
+]
+
+[[setting]]
+key = "refresh_minutes"
+type = "int"
+label_key = "settings.refresh_minutes.label"
+description_key = "settings.refresh_minutes.description"
+default = 1
+min = 1
+max = 1440
+
+[[setting]]
+key = "weekly_warn_mode"
+type = "select"
+label_key = "settings.weekly_warn_mode.label"
+description_key = "settings.weekly_warn_mode.description"
+default = "today"
+options = [
+  { value = "today", label_key = "settings.weekly_warn_mode.today" },
+  { value = "fixed", label_key = "settings.weekly_warn_mode.fixed" },
+]
+
+[[setting]]
+key = "weekly_warn_percent"
+type = "int"
+label_key = "settings.weekly_warn_percent.label"
+description_key = "settings.weekly_warn_percent.description"
+default = 80
+min = 1
+max = 100
+visible_when = { key = "weekly_warn_mode", values = ["fixed"] }
+
+[[setting]]
+key = "show_credits"
+type = "bool"
+label_key = "settings.show_credits.label"
+description_key = "settings.show_credits.description"
+default = true
+
+[[widget]]
+id = "usage"
+entry = "widget.luau"
+
+[[panel]]
+id = "panel"
+entry = "panel.luau"
+width = 320
+height = "content"
+max_height = 560
+placement = "attached"
+position = "auto"
+open_near_click = true
+dismiss_on_outside_click = true
+
+[[service]]
+id = "sync"
+entry = "service.luau"

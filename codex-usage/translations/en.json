@@ -1,0 +1,74 @@
+{
+  "panel": {
+    "ago": "ago",
+    "allowance": "Allowance",
+    "credits": "Credits",
+    "credits_balance": "Balance",
+    "credits_unlimited": "Unlimited",
+    "five_h": "5-hour",
+    "last_refresh": "Last refresh",
+    "left": "left",
+    "rate_limit_resets": "Rate-limit resets available",
+    "refresh": "Refresh usage",
+    "resets_in": "resets in",
+    "title": "Codex usage",
+    "today_budget": "Today's budget",
+    "today_pace": "Today pace",
+    "tokens_as_of": "Tokens as of",
+    "tokens_calendar": "Tokens · calendar",
+    "tokens_calendar_note": "Calendar buckets, not allowance cycle",
+    "tokens_last_week": "Last calendar week",
+    "tokens_this_week": "This calendar week",
+    "tokens_today": "Today",
+    "updated": "Updated",
+    "updated_now": "Updated just now",
+    "used": "used",
+    "used_today": "Used today",
+    "warn_reason": "Warn",
+    "weekly": "Weekly"
+  },
+  "settings": {
+    "bar_window": {
+      "auto": "Auto (5h if available, else weekly)",
+      "description": "Which allowance window's leftover percentage appears on the bar.",
+      "five_h": "5-hour window",
+      "label": "Bar window",
+      "weekly": "Weekly window"
+    },
+    "refresh_minutes": {
+      "description": "Minutes between usage checks. The panel refresh button checks immediately.",
+      "label": "Refresh interval (minutes)"
+    },
+    "show_credits": {
+      "description": "Show the Credits section in the panel when the API returns credit data.",
+      "label": "Show credits"
+    },
+    "weekly_warn_mode": {
+      "description": "Controls bar color when weekly allowance pace is high. Does not change which percentage the bar shows.",
+      "fixed": "Fixed weekly threshold",
+      "label": "Weekly warn mode",
+      "today": "Today pace"
+    },
+    "weekly_warn_percent": {
+      "description": "When warn mode is Fixed, warn once weekly used reaches this percentage.",
+      "label": "Weekly warn percent"
+    }
+  },
+  "status": {
+    "error": "Couldn't refresh usage.",
+    "expired": "Codex login expired. Run codex login again.",
+    "loading": "Checking usage…",
+    "missing_auth": "Sign in with codex login so this can read Codex allowance.",
+    "partial": "Some usage data is missing or outdated.",
+    "unauthorized": "Codex rejected the saved login. Run codex login again."
+  },
+  "title": "Codex usage",
+  "widget": {
+    "five_h": "5-hour window",
+    "left": "Left",
+    "resets": "Resets in",
+    "status": "Status",
+    "used": "Used",
+    "weekly": "Weekly window"
+  }
+}
