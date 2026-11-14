@@ -32,6 +32,18 @@ local plus = Usage.parseUsagePayload({
 assertEq(plus.fiveHour.used, 42)
 assertEq(plus.weekly.used, 71)
 
+-- Regression: weekly in primary, 5h in secondary — classify by window seconds, not slot
+local swapped = Usage.parseUsagePayload({
+  rate_limit = {
+    primary_window = { used_percent = 71, limit_window_seconds = 604800, reset_at = 2000 },
+    secondary_window = { used_percent = 42, limit_window_seconds = 18000, reset_at = 1000 },
+  },
+})
+assertEq(swapped.fiveHour.used, 42, "swapped fiveHour used")
+assertEq(swapped.weekly.used, 71, "swapped weekly used")
+assertEq(swapped.fiveHour.kind, "5h", "swapped fiveHour kind")
+assertEq(swapped.weekly.kind, "weekly", "swapped weekly kind")
+
 local w5 = plus.fiveHour
 assertEq(Usage.percentLeft(42), 58)
 assertEq(Usage.formatBarText(w5, 1000 - 3 * 3600 - 12 * 60), "58%  3h 12m")
