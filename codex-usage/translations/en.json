@@ -25,7 +25,10 @@
     "used": "used",
     "used_today": "Used today",
     "warn_reason": "Warn",
-    "weekly": "Weekly"
+    "weekly": "Weekly",
+    "today_budget_note": "Allowance left ÷ local calendar days until reset.",
+    "warn_today": "Warn: used today ≥ budget:",
+    "warn_fixed": "Warn: weekly usage reached the fixed threshold."
   },
   "settings": {
     "bar_window": {
@@ -60,7 +63,8 @@
     "loading": "Checking usage…",
     "missing_auth": "Sign in with codex login so this can read Codex allowance.",
     "partial": "Some usage data is missing or outdated.",
-    "unauthorized": "Codex rejected the saved login. Run codex login again."
+    "unauthorized": "Codex rejected the saved login. Run codex login again.",
+    "ok": "Up to date"
   },
   "title": "Codex usage",
   "widget": {
