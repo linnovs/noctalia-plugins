@@ -7,8 +7,9 @@ Plugins for the [Noctalia](https://noctalia.dev) shell. Each plugin lives in its
 | Directory | Id | What it shows |
 | --- | --- | --- |
 | [`grok-usage`](grok-usage/README.md) | `linnovs/grok-usage` | This week's Grok allowance on the bar, with the reset countdown in an attached panel |
+| [`codex-usage`](codex-usage/README.md) | `linnovs/codex-usage` | ChatGPT Codex allowance left, reset countdowns, today pace, and calendar tokens |
 
-Install a plugin from this repository in Noctalia, then add its bar widget from the bar's widget picker. `grok-usage` needs a one-time `grok login` on the machine. See that plugin's README for the panel, settings, and IPC commands.
+Install a plugin from this repository in Noctalia, then add its bar widget from the bar's widget picker. `grok-usage` needs a one-time `grok login`; `codex-usage` needs ChatGPT sign-in through `codex login`. See each plugin's README for the panel, settings, and IPC commands.
 
 ## License
 
