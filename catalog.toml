@@ -30,8 +30,8 @@ rev = "87b95000ea8ff7b59284efb52fcd9d027bffddee"
 [[plugin]]
 id = "linnovs/codex-usage"
 name = "Codex Usage"
-version = "1.0.0"
-updated_at = 1794674591
+version = "1.0.2"
+updated_at = 1794762041
 added_at = 1794674591
 author = "Linnovs"
 license = "MIT"
