@@ -68,11 +68,17 @@
   },
   "title": "Codex usage",
   "widget": {
-    "five_h": "5-hour window",
+    "five_h": "5h",
     "left": "Left",
-    "resets": "Resets in",
+    "pace": "Pace",
+    "resets": "Resets",
     "status": "Status",
+    "today_budget": "Today budget",
+    "today_used": "Today used",
     "used": "Used",
-    "weekly": "Weekly window"
+    "warn": "Warning",
+    "warn_fixed": "Weekly threshold reached",
+    "warn_today": "Over today",
+    "weekly": "Weekly"
   }
 }

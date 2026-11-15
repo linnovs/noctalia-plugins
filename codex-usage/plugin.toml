@@ -1,6 +1,6 @@
 id = "linnovs/codex-usage"
 name = "Codex Usage"
-version = "1.0.1"
+version = "1.0.2"
 plugin_api = 42
 author = "Linnovs"
 license = "MIT"

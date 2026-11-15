@@ -19,7 +19,14 @@ local bar={setImage=function(path) result.icon=path end,setText=function(text) r
 local widget=Widget.start(host,bar)
 assert(string.find(result.text,"58%%  3h"))
 eq(result.color,"warning")
-eq(#result.tooltip,2)
+-- 5h used/left/resets + weekly used/left/resets + today used/budget + pace warn
+eq(#result.tooltip,9)
+local function tip(key)
+  for _,row in ipairs(result.tooltip) do if row.key==key then return row.value end end
+end
+eq(tip("widget.today_used"),"18%")
+eq(tip("widget.today_budget"),"15%")
+eq(tip("widget.pace"),"widget.warn_today 18% ≥ 15%")
 widget.onClick()
 eq(result.panel,"linnovs/codex-usage:panel")
 config.bar_window="weekly"

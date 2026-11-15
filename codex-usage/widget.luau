@@ -16,18 +16,37 @@ function Widget.start(host,bar)
       color=usage.status=="loading" and "on_surface" or "error"
     elseif usage.warn then color="warning" end
     bar.setColor(color)
+    -- One short key/value per fact — long joined values get clipped by the host tooltip.
     local rows={}
     for _,key in ipairs({"fiveHour","weekly"}) do
       local window=usage[key]
       if window then
-        local value=host.tr("widget.used").." "..Usage.formatPercent(window.used)
-          .." · "..host.tr("widget.left").." "..Usage.formatPercent(Usage.percentLeft(window.used))
+        local label=host.tr(key=="fiveHour" and "widget.five_h" or "widget.weekly")
+        table.insert(rows,{key=label.." · "..host.tr("widget.used"),value=Usage.formatPercent(window.used)})
+        table.insert(rows,{key=label.." · "..host.tr("widget.left"),value=Usage.formatPercent(Usage.percentLeft(window.used))})
         local remaining=Usage.formatRemaining(now,window.resetsAt)
-        if remaining then value=value.." · "..host.tr("widget.resets").." "..remaining end
-        table.insert(rows,{key=host.tr(key=="fiveHour" and "widget.five_h" or "widget.weekly"),value=value})
+        if remaining then
+          table.insert(rows,{key=label.." · "..host.tr("widget.resets"),value=remaining})
+        end
       end
     end
-    if usage.status and usage.status~="ok" then
+    if type(usage.usedToday)=="number" then
+      table.insert(rows,{key=host.tr("widget.today_used"),value=Usage.formatPercent(usage.usedToday)})
+    end
+    if type(usage.todayBudget)=="number" then
+      table.insert(rows,{key=host.tr("widget.today_budget"),value=Usage.formatPercent(usage.todayBudget)})
+    end
+    if usage.warn then
+      local reason=host.tr("widget.warn")
+      if usage.warnReason=="today" and type(usage.usedToday)=="number" and type(usage.todayBudget)=="number" then
+        reason=host.tr("widget.warn_today").." "
+          ..Usage.formatPercent(usage.usedToday).." ≥ "..Usage.formatPercent(usage.todayBudget)
+      elseif usage.warnReason=="fixed" then
+        reason=host.tr("widget.warn_fixed")
+      end
+      table.insert(rows,{key=host.tr("widget.pace"),value=reason})
+    end
+    if usage.status and usage.status~="ok" and usage.status~="loading" then
       table.insert(rows,{key=host.tr("widget.status"),value=host.tr("status."..usage.status)})
     end
     if #rows==0 then bar.setTooltip(host.tr("status.loading")) else bar.setTooltip(rows) end
