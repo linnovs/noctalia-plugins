@@ -1,6 +1,6 @@
 id = "linnovs/codex-usage"
 name = "Codex Usage"
-version = "1.0.2"
+version = "1.0.3"
 plugin_api = 42
 author = "Linnovs"
 license = "MIT"
@@ -19,6 +19,17 @@ options = [
   { value = "auto", label_key = "settings.bar_window.auto" },
   { value = "5h", label_key = "settings.bar_window.five_h" },
   { value = "weekly", label_key = "settings.bar_window.weekly" },
+]
+
+[[setting]]
+key = "bar_metric"
+type = "select"
+label_key = "settings.bar_metric.label"
+description_key = "settings.bar_metric.description"
+default = "used"
+options = [
+  { value = "used", label_key = "settings.bar_metric.used" },
+  { value = "left", label_key = "settings.bar_metric.left" },
 ]
 
 [[setting]]

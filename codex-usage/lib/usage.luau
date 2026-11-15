@@ -267,12 +267,16 @@ function Usage.selectBarWindow(windows, mode)
   return windows.weekly
 end
 
-function Usage.formatBarText(window, now)
+-- metric: "used" (default) or "left". 5h windows still append the reset countdown.
+function Usage.formatBarText(window, now, metric)
   if type(window) ~= "table" or type(window.used) ~= "number" then
     return Usage.formatPercent(nil)
   end
-  local left = Usage.percentLeft(window.used)
-  local text = Usage.formatPercent(left)
+  local shown = window.used
+  if metric == "left" then
+    shown = Usage.percentLeft(window.used)
+  end
+  local text = Usage.formatPercent(shown)
   if window.kind == "5h" and type(window.resetsAt) == "number" and type(now) == "number" then
     local countdown = Usage.formatBarRemaining(now, window.resetsAt)
     if countdown ~= nil then

@@ -46,9 +46,12 @@ assertEq(swapped.weekly.kind, "weekly", "swapped weekly kind")
 
 local w5 = plus.fiveHour
 assertEq(Usage.percentLeft(42), 58)
-assertEq(Usage.formatBarText(w5, 1000 - 3 * 3600 - 12 * 60), "58%  3h 12m")
+assertEq(Usage.formatBarText(w5, 1000 - 3 * 3600 - 12 * 60), "42%  3h 12m")
+assertEq(Usage.formatBarText(w5, 1000 - 3 * 3600 - 12 * 60, "used"), "42%  3h 12m")
+assertEq(Usage.formatBarText(w5, 1000 - 3 * 3600 - 12 * 60, "left"), "58%  3h 12m")
 local ww = plus.weekly
-assertEq(Usage.formatBarText(ww, 0), "29%") -- no countdown on weekly bar
+assertEq(Usage.formatBarText(ww, 0), "71%") -- no countdown on weekly bar
+assertEq(Usage.formatBarText(ww, 0, "left"), "29%")
 
 local auto = Usage.selectBarWindow(plus, "auto")
 assertEq(auto.kind, "5h")

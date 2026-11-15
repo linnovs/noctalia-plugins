@@ -31,9 +31,15 @@
     "warn_fixed": "Warn: weekly usage reached the fixed threshold."
   },
   "settings": {
+    "bar_metric": {
+      "description": "Whether the bar shows leftover or used percentage for the selected window.",
+      "label": "Bar percentage",
+      "left": "Left (remaining)",
+      "used": "Used"
+    },
     "bar_window": {
       "auto": "Auto (5h if available, else weekly)",
-      "description": "Which allowance window's leftover percentage appears on the bar.",
+      "description": "Which allowance window's percentage appears on the bar.",
       "five_h": "5-hour window",
       "label": "Bar window",
       "weekly": "Weekly window"

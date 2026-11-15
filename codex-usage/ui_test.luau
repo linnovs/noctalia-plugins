@@ -6,7 +6,7 @@ local state={status="ok",fiveHour={kind="5h",used=42,resetsAt=os.time()+11520},
  weekly={kind="weekly",used=71,resetsAt=os.time()+86400},warn=true,warnReason="today",
  usedToday=18,todayBudget=15,credits={balance=20},resetsAvailable=2,
  tokens={today=100,thisWeek=12400000,lastWeek=900000,todayAsOf="2026-11-13"},fetchedAt=os.time()}
-local watches, result, config = {}, {}, {show_credits=true,bar_window="auto"}
+local watches, result, config = {}, {}, {show_credits=true,bar_window="auto",bar_metric="used"}
 local host={
  state={get=function() return state end,watch=function(key,cb) watches[key]=cb end,
  set=function(key,value) result.refresh=key end},
@@ -17,7 +17,7 @@ local host={
 local bar={setImage=function(path) result.icon=path end,setText=function(text) result.text=text end,
  setColor=function(color) result.color=color end,setTooltip=function(rows) result.tooltip=rows end}
 local widget=Widget.start(host,bar)
-assert(string.find(result.text,"58%%  3h"))
+assert(string.find(result.text,"42%%  3h"))
 eq(result.color,"warning")
 -- 5h used/left/resets + weekly used/left/resets + today used/budget + pace warn
 eq(#result.tooltip,9)
@@ -31,7 +31,11 @@ widget.onClick()
 eq(result.panel,"linnovs/codex-usage:panel")
 config.bar_window="weekly"
 widget.update()
+eq(result.text,"71%")
+config.bar_metric="left"
+widget.update()
 eq(result.text,"29%")
+config.bar_metric="used"
 config.bar_window="5h"
 state={status="ok",weekly=state.weekly}
 watches["codex.usage"](state)

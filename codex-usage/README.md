@@ -38,6 +38,7 @@ Absent windows and token buckets display no invented values.
 | Key | Default | Behavior |
 | --- | --- | --- |
 | `bar_window` | `auto` | `auto`, `5h`, or `weekly`; selecting a missing window shows `—` |
+| `bar_metric` | `used` | `used` or `left` (remaining) percentage on the bar |
 | `refresh_minutes` | `1` | Minutes between checks, clamped to 1–1440 |
 | `weekly_warn_mode` | `today` | `today` pace or `fixed` weekly used threshold; color only |
 | `weekly_warn_percent` | `80` | Fixed mode warns when weekly used reaches this percentage (1–100) |

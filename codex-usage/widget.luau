@@ -10,7 +10,7 @@ function Widget.start(host,bar)
     local now=os.time()
     local selected=Usage.selectBarWindow(usage,host.getConfig("bar_window"))
     bar.setImage(host.isDarkMode() and "assets/codex_dark.webp" or "assets/codex_light.webp",false,18)
-    bar.setText(Usage.formatBarText(selected,now))
+    bar.setText(Usage.formatBarText(selected,now,host.getConfig("bar_metric")))
     local color="primary"
     if selected==nil then
       color=usage.status=="loading" and "on_surface" or "error"
