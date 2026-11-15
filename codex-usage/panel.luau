@@ -28,17 +28,30 @@ function Panel.start(host,surface,ui)
       local window=usage[key]
       if window then
         local children={
-          label(host.tr(key=="fiveHour" and "panel.five_h" or "panel.weekly")),
           ui.row({align="center",gap=8},{
             ui.label({text=Usage.formatPercent(Usage.percentLeft(window.used)),fontSize=32,fontWeight="heavy",color="on_surface"}),
             label(host.tr("panel.left"),"on_surface_variant"),
+            label(host.tr(key=="fiveHour" and "panel.five_h" or "panel.weekly"),"on_surface_variant"),
           }),
-          label(Usage.formatPercent(window.used).." "..host.tr("panel.used"),"on_surface_variant",12),
-          ui.progress({progress=math.clamp(window.used/100,0,1),fill=usage.warn and "warning" or "primary",
-            track="surface_variant",height=8,radius=4,flexGrow=1}),
+          ui.row({gap=10,align="center",justify="space_between"},{
+            ui.progress({progress=math.clamp(window.used/100,0,1),fill=usage.warn and "warning" or "primary",
+              track="surface_variant",height=8,radius=4,flexGrow=1}),
+            ui.label({text=Usage.formatPercent(window.used),fontWeight="bold",
+              color=usage.warn and "warning" or "primary"}),
+          }),
         }
+        local resetRow={}
         local remaining=Usage.formatRemaining(now,window.resetsAt)
-        if remaining then table.insert(children,label(host.tr("panel.resets_in").." "..remaining,"on_surface_variant",12)) end
+        if remaining then
+          table.insert(resetRow,label(host.tr("panel.resets_in").." "..remaining,"on_surface_variant",12))
+        end
+        local clock=Usage.formatResetClock(window.resetsAt)
+        if clock then
+          table.insert(resetRow,label(clock,"on_surface_variant",12))
+        end
+        if #resetRow > 0 then
+          table.insert(children,ui.row({align="center",gap=8},resetRow))
+        end
         table.insert(sections,section(children))
       end
     end

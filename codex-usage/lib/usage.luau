@@ -239,6 +239,18 @@ function Usage.formatRemaining(now, resetsAt)
   return string.format("%dm", minutes)
 end
 
+-- Local wall-clock for the reset instant, e.g. "Mon 15:00".
+function Usage.formatResetClock(resetsAt)
+  if type(resetsAt) ~= "number" then
+    return nil
+  end
+  local clock = os.date("%a %H:%M", resetsAt)
+  if type(clock) ~= "string" or clock == "" then
+    return nil
+  end
+  return clock
+end
+
 function Usage.selectBarWindow(windows, mode)
   if type(windows) ~= "table" then
     return nil
