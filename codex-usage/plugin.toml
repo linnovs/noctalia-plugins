@@ -1,6 +1,6 @@
 id = "linnovs/codex-usage"
 name = "Codex Usage"
-version = "1.0.0"
+version = "1.0.1"
 plugin_api = 42
 author = "Linnovs"
 license = "MIT"
@@ -67,7 +67,7 @@ id = "panel"
 entry = "panel.luau"
 width = 320
 height = "content"
-max_height = 560
+max_height = 640
 placement = "attached"
 position = "auto"
 open_near_click = true

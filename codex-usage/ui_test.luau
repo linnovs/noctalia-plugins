@@ -35,7 +35,7 @@ eq(result.color,"on_surface")
 
 local tree
 local primitives={}
-for _,name in ipairs({"column","row","label","progress","button"}) do
+for _,name in ipairs({"column","row","label","progress","button","scroll"}) do
  primitives[name]=function(props,children) return {kind=name,props=props,children=children or {}} end
 end
 local panel={render=function(value) tree=value end,setWantsSecondTicks=function() end}
@@ -49,6 +49,7 @@ local function find(node,predicate)
  return nil
 end
 local function label(text) return find(tree,function(n) return n.kind=="label" and n.props.text==text end) end
+eq(tree.kind,"column")
 assert(label("58%"))
 assert(label("12.4M"))
 assert(label("panel.credits"))

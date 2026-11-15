@@ -24,7 +24,6 @@ function Panel.start(host,surface,ui)
       ui.button({glyph="refresh",variant="ghost",tooltip=host.tr("panel.refresh"),enabled=usage.fetching~=true,
         onClick=function() host.state.set("codex.refresh",os.clock()) end}),
     })})}
-    local allowance={label(host.tr("panel.allowance"),"on_surface_variant")}
     for _,key in ipairs({"fiveHour","weekly"}) do
       local window=usage[key]
       if window then
@@ -40,10 +39,9 @@ function Panel.start(host,surface,ui)
         }
         local remaining=Usage.formatRemaining(now,window.resetsAt)
         if remaining then table.insert(children,label(host.tr("panel.resets_in").." "..remaining,"on_surface_variant",12)) end
-        table.insert(allowance,section(children))
+        table.insert(sections,section(children))
       end
     end
-    table.insert(sections,section(allowance))
     if type(usage.usedToday)=="number" then
       local pace={label(host.tr("panel.today_pace")),
         row("panel.used_today",Usage.formatPercent(usage.usedToday)),
@@ -103,7 +101,9 @@ function Panel.start(host,surface,ui)
       table.insert(footer,label(host.tr("panel.tokens_as_of").." "..tokens.todayAsOf,"on_surface_variant",12))
     end
     table.insert(sections,section(footer))
-    surface.render(ui.column({flexGrow=1,align="stretch",gap=12,justify="start"},sections))
+    -- Column (not flexGrow scroll): height follows content up to max_height, without
+    -- stretching a tall empty viewport when the payload is shorter.
+    surface.render(ui.column({align="stretch",gap=12,justify="start"},sections))
   end
   host.state.watch("codex.usage",function(value)
     if type(value)=="table" then usage=value render() end
